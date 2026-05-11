@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的互動書櫃 | Notion 版</title>
+    <style>
+        :root {
+            --shelf-color: #5d4037;
+            --shelf-depth: #3e2723;
+            --wall-color: #f4f1ea;
+            --paper-color: #fafafa;
+            --ink-color: #2c3e50;
+        }
+
+        body {
+            background-color: var(--wall-color);
+            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
+            margin: 0;
+            padding-bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            margin: 60px 0 20px;
+            color: #2c3e50;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .bookshelf-container {
+            width: 90%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .year-section { margin-top: 40px; }
+
+        .year-label {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #8d6e63;
+            margin-left: 10px;
+            margin-bottom: 5px;
+            border-left: 5px solid var(--shelf-color);
+            padding-left: 15px;
+        }
+
+        .shelf { position: relative; margin-bottom: 20px; }
+
+        .books-row {
+            display: flex;
+            align-items: flex-end;
+            padding: 0 30px;
+            gap: 5px;
+            height: 240px;
+            z-index: 2;
+            position: relative;
+        }
+
+        /* --- 書脊樣式 --- */
+        .book {
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 3px 0 5px rgba(0,0,0,0.2);
+            border-radius: 2px 4px 4px 2px;
+            border-left: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .book:hover {
+            transform: translateY(-25px) rotateZ(-2deg);
+            z-index: 10;
+            filter: brightness(1.1);
+            box-shadow: 0 15px 25px rgba(0,0,0,0.3);
+        }
+
+        .spine-text {
+            writing-mode: vertical-rl;
+            color: white;
+            font-size: 13px;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            white-space: nowrap;
+            overflow: hidden;
+            max-height: 170px;
+            padding: 10px 0;
+        }
+
+        .shelf-board {
+            height: 22px;
+            background: var(--shelf-color);
+            width: 100%;
+            border-radius: 2px;
+            z-index: 3;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+        }
+
+        /* --- 打開書本彈窗 --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.75);
+            backdrop-filter: blur(8px);
+            perspective: 2000px;
+        }
+
+        .modal-content {
+            margin: 5vh auto;
+            width: 90%;
+            max-width: 950px;
+            position: relative;
+        }
+
+        .open-book {
+            display: flex;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.6);
+            transform: rotateX(5deg);
+            transform-style: preserve-3d;
+            border-radius: 5px;
+        }
+
+        .page {
+            flex: 1;
+            background-color: var(--paper-color);
+            padding: 50px;
+            height: 75vh;
+            overflow-y: auto;
+            color: var(--ink-color);
+            box-sizing: border-box;
+        }
+
+        .page.left {
+            border-radius: 5px 0 0 5px;
+            background-image: linear-gradient(to right, #ffffff 95%, #e0e0e0 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            border-right: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .page.right {
+            border-radius: 0 5px 5px 0;
+            background-image: linear-gradient(to left, #ffffff 95%, #e0e0e0 100%);
+        }
+
+        .book-spine-crease {
+            width: 15px;
+            background: linear-gradient(to right, #dcdcdc, #ffffff 50%, #dcdcdc);
+        }
+
+        .modal-title { font-size: 2.2rem; margin-bottom: 10px; color: #3e2723; }
+        .modal-author { font-size: 1.1rem; color: #7f8c8d; margin-bottom: 20px; }
+        .modal-rating { font-size: 1.5rem; color: #f1c40f; margin-bottom: 30px; }
+        .modal-body { line-height: 2; font-size: 1.1rem; white-space: pre-wrap; color: #444; }
+
+        .close-btn {
+            position: absolute;
+            right: -20px;
+            top: -20px;
+            font-size: 40px;
+            cursor: pointer;
+            color: #fff;
+            z-index: 110;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>My Reading Shelf</h1>
+
+    <div class="bookshelf-container" id="main-bookshelf">
+        </div>
+
+    <div id="note-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div class="open-book">
+                <div class="page left">
+                    <h2 id="modal-title" class="modal-title">書名</h2>
+                    <p id="modal-author" class="modal-author">作者</p>
+                    <div id="modal-rating" class="modal-rating">★★★★★</div>
+                    <p id="modal-date" style="font-size: 0.8rem; color: #bdc3c7;"></p>
+                </div>
+
+                <div class="book-spine-crease"></div>
+
+                <div class="page right">
+                    <div id="modal-body" class="modal-body"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化讀取資料 (如果 books.json 還沒生成，會先顯示模擬資料)
+        async function init() {
+            try {
+                const response = await fetch('books.json');
+                const data = await response.json();
+                renderBookshelf(data);
+            } catch (e) {
+                console.log("正在使用模擬資料，請確認 books.json 是否存在");
+                renderBookshelf(mockData);
+            }
+        }
+
+        const mockData = [
+            { title: "飢餓遊戲", author: "Suzanne Collins", year: 2026, rating: "★★★★☆", color: "#c0392b", note: "這是我在 Notion 中紀錄的第一本書。故事探討了生存與人性的掙扎...", height: 210, width: 45 },
+            { title: "迷霧之子", author: "Brandon Sanderson", year: 2025, rating: "★★★★★", color: "#2c3e50", note: "宏大的世界觀，強大的魔法系統...", height: 220, width: 50 }
+        ];
+
+        function renderBookshelf(data) {
+            const mainContainer = document.getElementById('main-bookshelf');
+            mainContainer.innerHTML = '';
+
+            const years = [...new Set(data.map(b => b.year))].sort((a, b) => b - a);
+
+            years.forEach(year => {
+                const section = document.createElement('div');
+                section.className = 'year-section';
+                section.innerHTML = `
+                    <div class="year-label">${year} 年</div>
+                    <div class="shelf">
+                        <div class="books-row" id="shelf-${year}"></div>
+                        <div class="shelf-board"></div>
+                    </div>
+                `;
+                mainContainer.appendChild(section);
+
+                const row = document.getElementById(`shelf-${year}`);
+                data.filter(b => b.year === year).forEach(book => {
+                    const bookEl = document.createElement('div');
+                    bookEl.className = 'book';
+                    bookEl.style.backgroundColor = book.color;
+                    bookEl.style.height = `${book.height}px`;
+                    bookEl.style.width = `${book.width}px`;
+                    bookEl.innerHTML = `<div class="spine-text">${book.title}</div>`;
+                    bookEl.onclick = () => openNote(book);
+                    row.appendChild(bookEl);
+                });
+            });
+        }
+
+        function openNote(book) {
+            document.getElementById('modal-title').innerText = book.title;
+            document.getElementById('modal-author').innerText = book.author;
+            document.getElementById('modal-rating').innerText = book.rating;
+            document.getElementById('modal-date').innerText = `Finished in ${book.year}`;
+            document.getElementById('modal-body').innerText = book.note;
+            document.getElementById('note-modal').style.display = "block";
+        }
+
+        function closeModal() {
+            document.getElementById('note-modal').style.display = "none";
+        }
+
+        window.onclick = (e) => { if(e.target.className === 'modal') closeModal(); }
+
+        init();
+    </script>
+</body>
+</html>
