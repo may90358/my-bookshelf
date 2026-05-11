@@ -18,7 +18,7 @@
             background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
                         url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=2000&auto=format&fit=crop') no-repeat center center fixed;
             background-size: cover;
-            font-family: "Georgia", "Times New Roman", "serif";
+            font-family: "Georgia", "PingFang TC", "serif";
             color: white;
             min-height: 100vh;
             overflow-x: hidden;
@@ -40,7 +40,6 @@
             z-index: 5;
         }
 
-        /* 年份標題 */
         .year-label {
             font-size: 1.5rem;
             color: var(--gold-bright);
@@ -54,6 +53,7 @@
             display: flex;
             align-items: baseline;
         }
+
         .book-count {
             font-size: 1rem;
             color: rgba(255, 255, 255, 0.7);
@@ -62,7 +62,6 @@
             font-weight: normal;
         }
 
-        /* 書架容器 */
         .shelf { position: relative; margin-bottom: 80px; }
         
         .books-row {
@@ -79,7 +78,6 @@
         .books-row::-webkit-scrollbar { display: none; }
         .books-row:active { cursor: grabbing; }
 
-        /* 精裝書脊樣式：回到垂直排列 */
         .book {
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
@@ -103,6 +101,7 @@
             filter: brightness(1.1);
         }
 
+        /* 書脊文字：垂直排列 + 8字換行邏輯 */
         .spine-text {
             writing-mode: vertical-rl;
             color: #fcf4d9;
@@ -110,11 +109,15 @@
             font-weight: bold;
             letter-spacing: 2px;
             text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
-            padding: 20px 0;
+            padding: 15px 0;
             text-align: center;
             pointer-events: none;
             word-break: break-all;
-            max-height: 85%;
+            /* 限制高度以強制長標題換行 (約 8 個中文字高度) */
+            max-height: 180px; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .shelf-board {
@@ -138,11 +141,20 @@
             justify-content: center;
         }
         .open-book { display: flex; background-color: #fff; box-shadow: 0 50px 100px rgba(0,0,0,0.9); height: 85vh; border-radius: 4px; overflow: hidden; }
-        .page { flex: 1; padding: 40px; overflow-y: auto; color: #333; }
+        
+        /* 書頁內容：隱藏 Scrollbar */
+        .page { 
+            flex: 1; 
+            padding: 40px; 
+            overflow-y: auto; 
+            color: #333; 
+            scrollbar-width: none; /* Firefox */
+        }
+        .page::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+
         .page.left { background: #fafafa; border-right: 1px solid #eee; }
         .book-spine-crease { width: 20px; background: linear-gradient(to right, #ddd, #fff 50%, #ddd); flex-shrink: 0; }
         
-        /* 導航按鈕 */
         .nav-btn {
             position: absolute;
             top: 50%;
@@ -165,12 +177,12 @@
         .next-btn { right: -70px; }
 
         .close-btn { position: absolute; right: -50px; top: -10px; font-size: 50px; color: white; cursor: pointer; }
-
         .highlight-item { background: #f8f5f0; padding: 15px; margin-bottom: 12px; border-left: 5px solid var(--gold-bright); color: #555; line-height: 1.8; }
 
-        @media (max-width: 800px) {
+        @media (max-width: 1150px) {
             .prev-btn { left: 10px; }
             .next-btn { right: 10px; }
+            .close-btn { right: 10px; top: -50px; }
         }
     </style>
 </head>
@@ -201,7 +213,7 @@
                     <div id="m-highlights"></div>
                 </div>
                 <div class="book-spine-crease"></div>
-                <div class="page right">
+                <div class="page">
                     <div style="font-size: 0.8rem; color: #b8860b; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #eee;">REFLECTIONS</div>
                     <div id="m-thoughts" style="line-height: 2; white-space: pre-wrap;"></div>
                 </div>
@@ -228,7 +240,7 @@
             try {
                 const response = await fetch('books.json');
                 const data = await response.json();
-                allBooks = data.reverse(); // 最新在左
+                allBooks = data.reverse(); 
                 renderBookshelf();
                 enableDragScroll();
             } catch (e) { console.error("Load Error"); }
@@ -259,7 +271,9 @@
                     bookEl.className = 'book';
                     const bg = bookBackgrounds[Math.floor(Math.random() * bookBackgrounds.length)];
                     const h = 210 + Math.floor(Math.random() * 40);
-                    const w = book.title.length > 7 ? 75 : 55;
+                    
+                    // 根據書名長度動態調整寬度，若換行則需要更寬
+                    const w = book.title.length > 8 ? 85 : 60;
                     
                     bookEl.style.backgroundImage = `url('${bg}')`;
                     bookEl.style.height = `${h}px`;
@@ -308,7 +322,7 @@
             }
             document.getElementById('m-thoughts').innerText = thoughts;
 
-            // 控制導航按鈕
+            // 控制按鈕可見度
             document.querySelector('.prev-btn').style.visibility = (currentIdx > 0) ? 'visible' : 'hidden';
             document.querySelector('.next-btn').style.visibility = (currentIdx < currentYearBooks.length - 1) ? 'visible' : 'hidden';
         }
