@@ -66,7 +66,7 @@
         }
         .books-row::-webkit-scrollbar { display: none; }
 
-        /* 書架上的書本樣式：改用封面圖 */
+        /* 書架書本：封底圖 + 垂直文字 */
         .book {
             cursor: pointer;
             transition: all 0.3s ease;
@@ -78,13 +78,44 @@
             background-position: center;
             box-shadow: 3px 0 10px rgba(0,0,0,0.4);
             border-left: 2px solid rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
         }
+
+        .book::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.2); /* 讓文字更容易閱讀的暗色遮罩 */
+            transition: 0.3s;
+        }
+
+        .book:hover::before { background: rgba(0,0,0,0.1); }
 
         .book:hover { 
             transform: translateY(-15px) scale(1.05); 
             z-index: 10; 
-            filter: brightness(1.2);
+            filter: brightness(1.1);
             box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+        }
+
+        .spine-label {
+            writing-mode: vertical-rl;
+            color: #fff;
+            font-size: 13px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
+            z-index: 2;
+            letter-spacing: 1px;
+            text-align: center;
+            padding: 10px 0;
+            pointer-events: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-height: 85%;
         }
 
         .shelf-board {
@@ -94,9 +125,8 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.8);
         }
 
-        /* --- 彈窗樣式 --- */
+        /* --- 彈窗 --- */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); }
-        
         .modal-container {
             position: relative;
             width: 95%;
@@ -109,12 +139,8 @@
             border-radius: 8px;
             overflow: hidden;
         }
-
         .close-btn { position: absolute; right: 15px; top: 10px; font-size: 35px; color: #333; cursor: pointer; z-index: 2100; }
-
         .open-book { display: flex; flex: 1; overflow-y: auto; scrollbar-width: none; }
-        .open-book::-webkit-scrollbar { display: none; }
-        
         .page { flex: 1; padding: 30px; color: #333; }
         .page.left { background: #fafafa; border-right: 1px solid #eee; }
         .book-spine-crease { width: 15px; background: linear-gradient(to right, #ddd, #fff 50%, #ddd); flex-shrink: 0; }
@@ -129,13 +155,8 @@
             background: #f1f1f1;
             border-top: 1px solid #ddd;
         }
-
-        .nav-btn {
-            background: #333; color: var(--gold-bright); border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 8px;
-        }
+        .nav-btn { background: #333; color: var(--gold-bright); border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
         .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
-        .highlight-item { background: #fdfaf5; padding: 12px; margin-bottom: 12px; border-left: 4px solid var(--gold-bright); color: #444; font-size: 0.9rem; line-height: 1.6; }
 
         @media (max-width: 800px) {
             .modal-container { height: 92vh; margin: 4vh auto; }
@@ -159,7 +180,7 @@
                     <div style="display: flex; gap: 15px; margin-bottom: 20px; align-items: flex-start;">
                         <img id="m-cover" src="" alt="Cover">
                         <div style="flex: 1;">
-                            <h2 id="m-title" style="margin: 0 0 5px 0; color: #1a1a1a;"></h2>
+                            <h2 id="m-title" style="margin: 0 0 5px 0; color: #1a1a1a; font-family: serif;"></h2>
                             <div id="m-author" style="color: #666; font-size: 0.9rem;"></div>
                             <div id="m-rating" style="color: #d4af37; margin: 8px 0;"></div>
                             <div id="m-date" style="font-size: 0.75rem; background: #f0f0f0; padding: 4px 10px; border-radius: 4px; display: inline-block; color: #555;"></div>
@@ -217,15 +238,16 @@
                     const bookEl = document.createElement('div');
                     bookEl.className = 'book';
                     
-                    // 設定書背顯示封面
                     if (book.cover) {
                         bookEl.style.backgroundImage = `url('${book.cover}')`;
                     }
                     
-                    // 隨機一點高度差異增加真實感
                     const h = 220 + Math.floor(Math.random() * 25);
                     bookEl.style.height = `${h}px`;
-                    bookEl.style.width = `55px`; // 固定書背寬度
+                    bookEl.style.width = `58px`;
+                    
+                    // 加上書名垂直顯示
+                    bookEl.innerHTML = `<div class="spine-label">${book.title}</div>`;
                     
                     bookEl.onclick = () => openModal(yearBooks, index);
                     row.appendChild(bookEl);
@@ -277,7 +299,6 @@
 
             document.querySelector('.prev-btn').disabled = (currentIdx === 0);
             document.querySelector('.next-btn').disabled = (currentIdx === currentYearBooks.length - 1);
-            document.querySelector('.open-book').scrollTop = 0;
         }
 
         function changeBook(step) {
