@@ -327,7 +327,7 @@
             document.getElementById('m-author').innerText = book.author;
             document.getElementById('m-rating').innerText = book.rating;
             
-            const fullDate = book.date || book.finish_date || book.read_date;
+            const fullDate = book.date || book.finish_date || book.Date Finished;
             const dateDisplay = document.getElementById('m-date');
             if (fullDate && fullDate.length > 4) {
                 dateDisplay.innerText = `Read on: ${fullDate}`;
