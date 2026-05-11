@@ -5,177 +5,248 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的互動書櫃 | Notion 版</title>
     <style>
-        :root {
-            --shelf-color: #5d4037;
-            --shelf-depth: #3e2723;
-            --wall-color: #f4f1ea;
-            --paper-color: #fafafa;
-            --ink-color: #2c3e50;
-        }
+       :root {
+    --shelf-color: #5d4037;
+    --shelf-depth: #3e2723;
+    --wall-color: #f4f1ea;
+    --paper-color: #fafafa;
+    --ink-color: #2c3e50;
+    --accent-color: #8d6e63;
+}
 
-        body {
-            background-color: var(--wall-color);
-            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
-            margin: 0;
-            padding-bottom: 100px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+body {
+    background-color: var(--wall-color);
+    font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
+    margin: 0;
+    padding-bottom: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
-        h1 {
-            margin: 60px 0 20px;
-            color: #2c3e50;
-            font-weight: 300;
-            letter-spacing: 2px;
-        }
+h1 {
+    margin: 60px 0 20px;
+    color: #2c3e50;
+    font-weight: 300;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
 
-        .bookshelf-container {
-            width: 90%;
-            max-width: 900px;
-            display: flex;
-            flex-direction: column;
-        }
+/* --- 書架容器 --- */
+.bookshelf-container {
+    width: 90%;
+    max-width: 1000px;
+    display: flex;
+    flex-direction: column;
+}
 
-        .year-section { margin-top: 40px; }
+.year-section { margin-top: 50px; }
 
-        .year-label {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #8d6e63;
-            margin-left: 10px;
-            margin-bottom: 5px;
-            border-left: 5px solid var(--shelf-color);
-            padding-left: 15px;
-        }
+.year-label {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--accent-color);
+    margin-left: 10px;
+    margin-bottom: 8px;
+    border-left: 5px solid var(--shelf-color);
+    padding-left: 15px;
+}
 
-        .shelf { position: relative; margin-bottom: 20px; }
+.shelf { position: relative; margin-bottom: 30px; }
 
-        .books-row {
-            display: flex;
-            align-items: flex-end;
-            padding: 0 30px;
-            gap: 5px;
-            height: 240px;
-            z-index: 2;
-            position: relative;
-        }
+.books-row {
+    display: flex;
+    align-items: flex-end;
+    padding: 0 40px;
+    gap: 4px;
+    height: 240px;
+    z-index: 2;
+    position: relative;
+    overflow-x: auto;
+    scrollbar-width: none; /* Firefox */
+}
 
-        /* --- 書脊樣式 --- */
-        .book {
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            box-shadow: 3px 0 5px rgba(0,0,0,0.2);
-            border-radius: 2px 4px 4px 2px;
-            border-left: 1px solid rgba(255,255,255,0.2);
-        }
+.books-row::-webkit-scrollbar { display: none; } /* Chrome */
 
-        .book:hover {
-            transform: translateY(-25px) rotateZ(-2deg);
-            z-index: 10;
-            filter: brightness(1.1);
-            box-shadow: 0 15px 25px rgba(0,0,0,0.3);
-        }
+/* --- 書脊樣式 --- */
+.book {
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+    border-radius: 2px 4px 4px 2px;
+    border-left: 2px solid rgba(255,255,255,0.1);
+    flex-shrink: 0;
+}
 
-        .spine-text {
-            writing-mode: vertical-rl;
-            color: white;
-            font-size: 13px;
-            letter-spacing: 1px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-            white-space: nowrap;
-            overflow: hidden;
-            max-height: 170px;
-            padding: 10px 0;
-        }
+.book:hover {
+    transform: translateY(-20px) scale(1.05);
+    z-index: 10;
+    filter: brightness(1.1);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+}
 
-        .shelf-board {
-            height: 22px;
-            background: var(--shelf-color);
-            width: 100%;
-            border-radius: 2px;
-            z-index: 3;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-        }
+.spine-text {
+    writing-mode: vertical-rl;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    white-space: nowrap;
+    overflow: hidden;
+    max-height: 80%;
+}
 
-        /* --- 打開書本彈窗 --- */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 100;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.75);
-            backdrop-filter: blur(8px);
-            perspective: 2000px;
-        }
+.shelf-board {
+    height: 20px;
+    background: linear-gradient(to bottom, var(--shelf-color), var(--shelf-depth));
+    width: 100%;
+    border-radius: 4px;
+    z-index: 3;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+}
 
-        .modal-content {
-            margin: 5vh auto;
-            width: 90%;
-            max-width: 950px;
-            position: relative;
-        }
+/* --- 彈窗 (Modal) --- */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.8);
+    backdrop-filter: blur(5px);
+}
 
-        .open-book {
-            display: flex;
-            box-shadow: 0 30px 70px rgba(0,0,0,0.6);
-            transform: rotateX(5deg);
-            transform-style: preserve-3d;
-            border-radius: 5px;
-        }
+.modal-content {
+    background-color: #fff;
+    margin: 5vh auto;
+    width: 90%;
+    max-width: 800px;
+    border-radius: 12px;
+    position: relative;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    animation: modalIn 0.3s ease-out;
+    max-height: 90vh;
+    overflow-y: auto;
+}
 
-        .page {
-            flex: 1;
-            background-color: var(--paper-color);
-            padding: 50px;
-            height: 75vh;
-            overflow-y: auto;
-            color: var(--ink-color);
-            box-sizing: border-box;
-        }
+@keyframes modalIn {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
 
-        .page.left {
-            border-radius: 5px 0 0 5px;
-            background-image: linear-gradient(to right, #ffffff 95%, #e0e0e0 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            border-right: 1px solid rgba(0,0,0,0.05);
-        }
+/* 上方：左封面右資訊 */
+.book-info-top {
+    display: flex;
+    padding: 40px;
+    gap: 40px;
+    border-bottom: 1px solid #eee;
+    background: linear-gradient(to bottom right, #ffffff, #f9f9f9);
+}
 
-        .page.right {
-            border-radius: 0 5px 5px 0;
-            background-image: linear-gradient(to left, #ffffff 95%, #e0e0e0 100%);
-        }
+.book-cover-large {
+    width: 180px;
+    height: 260px;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    background-color: #eee;
+}
 
-        .book-spine-crease {
-            width: 15px;
-            background: linear-gradient(to right, #dcdcdc, #ffffff 50%, #dcdcdc);
-        }
+.book-details-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
 
-        .modal-title { font-size: 2.2rem; margin-bottom: 10px; color: #3e2723; }
-        .modal-author { font-size: 1.1rem; color: #7f8c8d; margin-bottom: 20px; }
-        .modal-rating { font-size: 1.5rem; color: #f1c40f; margin-bottom: 30px; }
-        .modal-body { line-height: 2; font-size: 1.1rem; white-space: pre-wrap; color: #444; }
+.modal-title {
+    font-size: 2rem;
+    color: #2c3e50;
+    margin: 0 0 10px 0;
+    line-height: 1.3;
+}
 
-        .close-btn {
-            position: absolute;
-            right: -20px;
-            top: -20px;
-            font-size: 40px;
-            cursor: pointer;
-            color: #fff;
-            z-index: 110;
-        }
+.modal-author {
+    font-size: 1.2rem;
+    color: #7f8c8d;
+    margin-bottom: 20px;
+}
+
+.modal-rating {
+    font-size: 1.5rem;
+    color: #f1c40f;
+    margin-bottom: 20px;
+}
+
+.modal-date {
+    font-size: 0.95rem;
+    color: #95a5a6;
+    margin-top: auto;
+    background: #f0f0f0;
+    padding: 5px 12px;
+    border-radius: 20px;
+    display: inline-block;
+    width: fit-content;
+}
+
+/* 下方：金句與心得 */
+.book-content-bottom {
+    padding: 40px;
+    background-color: white;
+}
+
+.content-label {
+    font-size: 0.9rem;
+    color: var(--accent-color);
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+    display: block;
+    letter-spacing: 1px;
+}
+
+.highlight-section {
+    line-height: 2;
+    font-size: 1.1rem;
+    color: #444;
+    white-space: pre-wrap;
+    padding: 20px;
+    background-color: #fcfaf7;
+    border-left: 4px solid var(--accent-color);
+    border-radius: 0 4px 4px 0;
+    font-style: italic;
+}
+
+.close-btn {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 30px;
+    cursor: pointer;
+    color: #95a5a6;
+    transition: color 0.2s;
+    z-index: 10;
+}
+
+.close-btn:hover { color: #333; }
+
+/* 行動裝置適應 */
+@media (max-width: 600px) {
+    .book-info-top {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 30px 20px;
+    }
+    .book-details-right { align-items: center; }
+    .modal-date { margin-top: 20px; }
+}
     </style>
 </head>
 <body>
@@ -186,24 +257,24 @@
         </div>
 
     <div id="note-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal()">&times;</span>
-            <div class="open-book">
-                <div class="page left">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <div class="open-book">
+            <div class="book-info-top">
+                <img id="modal-cover" class="book-cover-large" src="" alt="封面">
+                <div class="book-details-right">
                     <h2 id="modal-title" class="modal-title">書名</h2>
-                    <p id="modal-author" class="modal-author">作者</p>
+                    <div id="modal-author" class="modal-author">作者</div>
                     <div id="modal-rating" class="modal-rating">★★★★★</div>
-                    <p id="modal-date" style="font-size: 0.8rem; color: #bdc3c7;"></p>
+                    <div id="modal-date" class="modal-date">完讀日期</div>
                 </div>
-
-                <div class="book-spine-crease"></div>
-
-                <div class="page right">
-                    <div id="modal-body" class="modal-body"></div>
-                </div>
+            </div>
+            <div class="book-content-bottom">
+                <div id="modal-body" class="highlight-section"></div>
             </div>
         </div>
     </div>
+</div>
 
     <script>
         // 初始化讀取資料 (如果 books.json 還沒生成，會先顯示模擬資料)
