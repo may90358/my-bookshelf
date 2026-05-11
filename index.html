@@ -64,11 +64,12 @@
 
         .shelf { position: relative; margin-bottom: 80px; }
         
+        /* 縮小書與書之間的間距 (gap: 2px) */
         .books-row {
             display: flex;
             align-items: flex-end;
             padding: 0 10px 5px;
-            gap: 4px;
+            gap: 2px; 
             height: 300px;
             overflow-x: auto;
             scrollbar-width: none;
@@ -101,9 +102,10 @@
             filter: brightness(1.1);
         }
 
-        /* 書脊文字：垂直排列 + 8字換行邏輯 */
+        /* 書脊文字：垂直排列 + 超過 134px 則向右折行 */
         .spine-text {
-            writing-mode: vertical-rl;
+            writing-mode: vertical-rl; /* 垂直書寫，行順序由右至左 */
+            direction: ltr;           /* 強制內容流向，配合 vertical-rl 讓折行出現在右側 */
             color: #fcf4d9;
             font-size: 15px;
             font-weight: bold;
@@ -113,10 +115,12 @@
             text-align: center;
             pointer-events: none;
             word-break: break-all;
-            /* 限制高度以強制長標題換行 (約 8 個中文字高度) */
-            max-height: 180px; 
+            
+            /* 精確控制：超過 134px 即折行 */
+            max-height: 134px; 
+            
             display: flex;
-            flex-direction: column;
+            flex-direction: row; /* 讓折行後的列橫向排列 */
             justify-content: center;
         }
 
@@ -142,15 +146,15 @@
         }
         .open-book { display: flex; background-color: #fff; box-shadow: 0 50px 100px rgba(0,0,0,0.9); height: 85vh; border-radius: 4px; overflow: hidden; }
         
-        /* 書頁內容：隱藏 Scrollbar */
+        /* 隱藏彈窗內頁捲動軸 */
         .page { 
             flex: 1; 
             padding: 40px; 
             overflow-y: auto; 
             color: #333; 
-            scrollbar-width: none; /* Firefox */
+            scrollbar-width: none; 
         }
-        .page::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+        .page::-webkit-scrollbar { display: none; }
 
         .page.left { background: #fafafa; border-right: 1px solid #eee; }
         .book-spine-crease { width: 20px; background: linear-gradient(to right, #ddd, #fff 50%, #ddd); flex-shrink: 0; }
@@ -272,8 +276,9 @@
                     const bg = bookBackgrounds[Math.floor(Math.random() * bookBackgrounds.length)];
                     const h = 210 + Math.floor(Math.random() * 40);
                     
-                    // 根據書名長度動態調整寬度，若換行則需要更寬
-                    const w = book.title.length > 8 ? 85 : 60;
+                    // 根據書名長度與是否折行動態調整書脊寬度
+                    // 假設超過 8 個字寬度增加
+                    const w = book.title.length > 8 ? 88 : 58;
                     
                     bookEl.style.backgroundImage = `url('${bg}')`;
                     bookEl.style.height = `${h}px`;
@@ -322,7 +327,6 @@
             }
             document.getElementById('m-thoughts').innerText = thoughts;
 
-            // 控制按鈕可見度
             document.querySelector('.prev-btn').style.visibility = (currentIdx > 0) ? 'visible' : 'hidden';
             document.querySelector('.next-btn').style.visibility = (currentIdx < currentYearBooks.length - 1) ? 'visible' : 'hidden';
         }
