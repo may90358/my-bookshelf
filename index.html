@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的互動書櫃 | 精裝 3D 版</title>
+    <title>我的互動書櫃 | Notion 精裝版</title>
     <style>
         :root {
             --shelf-color: #5d4037;
@@ -22,30 +22,31 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            overflow-x: hidden;
         }
 
         h1 { margin: 60px 0 20px; color: #2c3e50; font-weight: 300; letter-spacing: 2px; }
 
         /* --- 書架顯示區：優化橫向捲動 --- */
-        .bookshelf-container { width: 95%; max-width: 1100px; display: flex; flex-direction: column; }
+        .bookshelf-container { width: 95%; max-width: 1100px; }
         .year-section { margin-top: 50px; }
-        .year-label { font-size: 1.4rem; font-weight: bold; color: var(--accent-color); margin-bottom: 8px; border-left: 5px solid var(--shelf-color); padding-left: 15px; }
+        .year-label { font-size: 1.4rem; font-weight: bold; color: var(--accent-color); margin-bottom: 12px; border-left: 5px solid var(--shelf-color); padding-left: 15px; }
         
-        .shelf { position: relative; margin-bottom: 30px; }
+        .shelf { position: relative; margin-bottom: 50px; }
         
         .books-row { 
             display: flex; 
             align-items: flex-end; 
-            padding: 0 20px; 
+            padding: 0 20px 10px 20px; 
             gap: 6px; 
             height: 240px; 
             z-index: 2; 
             position: relative; 
-            overflow-x: auto; /* 啟動橫向捲動 */
-            cursor: grab;     /* 滑鼠圖示變成抓取狀 */
+            overflow-x: auto; 
+            cursor: grab;
             scrollbar-width: none; 
             -ms-overflow-style: none;
-            user-select: none; /* 防止拖拽時選取到文字 */
+            user-select: none;
         }
         .books-row:active { cursor: grabbing; }
         .books-row::-webkit-scrollbar { display: none; }
@@ -64,33 +65,124 @@
         }
         .book:hover { transform: translateY(-20px); z-index: 10; }
         
-        .spine-text { writing-mode: vertical-rl; color: white; font-size: 14px; padding: 10px 0; font-style: normal; pointer-events: none; }
+        .spine-text { writing-mode: vertical-rl; color: white; font-size: 14px; padding: 10px 0; font-style: normal; pointer-events: none; white-space: nowrap; }
         .shelf-board { height: 20px; background: linear-gradient(to bottom, var(--shelf-color), var(--shelf-depth)); width: 100%; border-radius: 4px; box-shadow: 0 8px 15px rgba(0,0,0,0.3); }
 
         /* --- 彈窗 UI (3D 翻開) --- */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(5px); perspective: 2000px; }
-        .modal-content { margin: 5vh auto; width: 90%; max-width: 1100px; position: relative; }
-        .open-book { display: flex; background-color: #fff; border-bottom: 8px solid #d0d0d0; border-right: 5px solid #d0d0d0; box-shadow: 10px 20px 70px rgba(0,0,0,0.5); border-radius: 4px; transform: rotateX(5deg); transform-style: preserve-3d; max-height: 85vh; overflow: hidden; }
+        .modal { 
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.8); 
+            backdrop-filter: blur(5px); 
+            perspective: 2000px; 
+        }
+
+        .modal-content { 
+            margin: 5vh auto; 
+            width: 90%; 
+            max-width: 1100px; 
+            position: relative; 
+        }
+
+        .open-book { 
+            display: flex; 
+            background-color: #fff; 
+            border-bottom: 8px solid #bbb; 
+            border-right: 5px solid #bbb; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5); 
+            border-radius: 4px; 
+            transform: rotateX(5deg); 
+            transform-style: preserve-3d; 
+            height: 85vh; 
+            overflow: hidden; 
+        }
         
-        .page { flex: 1; padding: 40px; overflow-y: auto; color: var(--ink-color); display: flex; flex-direction: column; scrollbar-width: none; }
+        .page { 
+            flex: 1; 
+            padding: 40px; 
+            overflow-y: auto; 
+            color: var(--ink-color); 
+            display: flex; 
+            flex-direction: column; 
+            scrollbar-width: none; 
+        }
         .page::-webkit-scrollbar { display: none; }
-        .page.left { border-radius: 4px 0 0 4px; background-image: linear-gradient(to right, #fafafa 95%, #e0e0e0 100%); border-right: 1px solid rgba(0,0,0,0.05); }
-        .page.right { border-radius: 0 4px 4px 0; background-image: linear-gradient(to left, #ffffff 95%, #e0e0e0 100%); }
-        .book-spine-crease { width: 15px; background: linear-gradient(to right, #dcdcdc, #ffffff 50%, #dcdcdc); flex-shrink: 0; z-index: 5; }
 
-        /* 左頁排版 */
-        .book-cover-small { width: 160px; height: auto; border-radius: 5px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); margin-bottom: 20px; align-self: flex-start; }
-        .modal-title { font-size: 1.5rem; margin-bottom: 5px; font-style: normal; }
-        .modal-author { font-size: 1rem; color: #777; margin-bottom: 10px; font-style: normal; }
-        .modal-rating { font-size: 1.2rem; color: #f1c40f; margin-bottom: 15px; }
-        .section-label { font-size: 0.8rem; color: var(--accent-color); font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-        .highlight-section { line-height: 1.8; color: #444; white-space: pre-wrap; font-style: normal; background: #fdfdfd; padding: 15px; border-radius: 5px; }
-        .thought-section { line-height: 2; font-size: 1.1rem; color: #2c3e50; white-space: pre-wrap; font-style: normal; }
+        /* 紙張質感：左頁泛黃漸層 */
+        .page.left { 
+            background-image: linear-gradient(to right, #fafafa 95%, #e0e0e0 100%); 
+            border-right: 1px solid rgba(0,0,0,0.05);
+        }
+        /* 紙張質感：右頁純白與陰影 */
+        .page.right { 
+            background-image: linear-gradient(to left, #ffffff 95%, #e0e0e0 100%); 
+        }
 
-        .close-btn { position: absolute; right: -35px; top: -10px; font-size: 45px; cursor: pointer; color: #fff; }
+        .book-spine-crease { 
+            width: 15px; 
+            background: linear-gradient(to right, #dcdcdc, #ffffff 50%, #dcdcdc); 
+            flex-shrink: 0; 
+            z-index: 5; 
+        }
 
-        @media (max-width: 750px) {
-            .open-book { flex-direction: column; transform: none; max-height: 90vh; }
+        /* 左頁內容結構 */
+        .book-cover-small { 
+            width: 150px; 
+            height: auto; 
+            border-radius: 4px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2); 
+            margin-bottom: 20px; 
+        }
+        .modal-title { font-size: 1.6rem; margin: 0 0 10px 0; font-style: normal; line-height: 1.2; }
+        .modal-author { font-size: 1rem; color: #666; margin-bottom: 10px; font-style: normal; }
+        .modal-rating { font-size: 1.2rem; color: #f1c40f; margin-bottom: 20px; }
+        
+        .section-label { 
+            font-size: 0.85rem; 
+            color: var(--accent-color); 
+            font-weight: bold; 
+            margin-bottom: 15px; 
+            border-bottom: 1px solid #eee; 
+            padding-bottom: 5px; 
+            letter-spacing: 1px;
+        }
+
+        /* 內容字體樣式 */
+        .highlight-section { 
+            line-height: 1.8; 
+            color: #444; 
+            white-space: pre-wrap; 
+            font-style: normal; 
+            background: rgba(0,0,0,0.02);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .thought-section { 
+            line-height: 2; 
+            font-size: 1.1rem; 
+            color: #2c3e50; 
+            white-space: pre-wrap; 
+            font-style: normal; 
+        }
+
+        .close-btn { 
+            position: absolute; 
+            right: -40px; 
+            top: -20px; 
+            font-size: 50px; 
+            cursor: pointer; 
+            color: #fff; 
+            z-index: 1001;
+        }
+
+        @media (max-width: 800px) {
+            .open-book { flex-direction: column; transform: none; height: 90vh; }
             .book-spine-crease { width: 100%; height: 10px; }
             .close-btn { right: 10px; top: 10px; color: #333; }
         }
@@ -113,7 +205,9 @@
                     <span class="section-label">【劃線金句】</span>
                     <div id="modal-highlights" class="highlight-section"></div>
                 </div>
+
                 <div class="book-spine-crease"></div>
+
                 <div class="page right">
                     <span class="section-label">【我的心得】</span>
                     <div id="modal-thoughts" class="thought-section"></div>
@@ -128,33 +222,43 @@
                 const response = await fetch('books.json');
                 const data = await response.json();
                 
-                // --- 排序調整：日期最新（大到小）在最左邊 ---
+                // 1. 全局排序：年份最新（大到小）在最左
                 data.sort((a, b) => b.year - a.year); 
                 
                 renderBookshelf(data);
-                enableDragScroll(); // 啟用拖拉功能
-            } catch (e) { console.error("Fetch error"); }
+                enableDragScroll();
+            } catch (e) {
+                console.error("無法載入書籍資料");
+            }
         }
 
         function renderBookshelf(data) {
             const mainContainer = document.getElementById('main-bookshelf');
             mainContainer.innerHTML = '';
+            
+            // 獲取所有年份並降序排
             const years = [...new Set(data.map(b => b.year))].sort((a, b) => b - a);
 
             years.forEach(year => {
                 const section = document.createElement('div');
                 section.className = 'year-section';
-                section.innerHTML = `<div class="year-label">${year} 年</div><div class="shelf"><div class="books-row" id="shelf-${year}"></div><div class="shelf-board"></div></div>`;
+                section.innerHTML = `
+                    <div class="year-label">${year} 年</div>
+                    <div class="shelf">
+                        <div class="books-row" id="shelf-${year}"></div>
+                        <div class="shelf-board"></div>
+                    </div>
+                `;
                 mainContainer.appendChild(section);
 
                 const row = document.getElementById(`shelf-${year}`);
-                // 每個年份內的書也按順序排（最新的在前）
+                // 過濾該年份的書
                 data.filter(b => b.year === year).forEach(book => {
                     const bookEl = document.createElement('div');
                     bookEl.className = 'book';
-                    bookEl.style.backgroundColor = book.color;
-                    bookEl.style.height = `${book.height}px`;
-                    bookEl.style.width = `${book.width}px`;
+                    bookEl.style.backgroundColor = book.color || '#2c3e50';
+                    bookEl.style.height = `${book.height || 200}px`;
+                    bookEl.style.width = `${book.width || 40}px`;
                     bookEl.innerHTML = `<div class="spine-text">${book.title}</div>`;
                     bookEl.onclick = () => openNote(book);
                     row.appendChild(bookEl);
@@ -162,7 +266,7 @@
             });
         }
 
-        // --- 新增：滑鼠拖拉捲動功能 ---
+        // 滑鼠拖拉功能
         function enableDragScroll() {
             const sliders = document.querySelectorAll('.books-row');
             sliders.forEach(slider => {
@@ -172,17 +276,16 @@
 
                 slider.addEventListener('mousedown', (e) => {
                     isDown = true;
-                    slider.classList.add('active');
                     startX = e.pageX - slider.offsetLeft;
                     scrollLeft = slider.scrollLeft;
                 });
-                slider.addEventListener('mouseleave', () => { isDown = false; });
-                slider.addEventListener('mouseup', () => { isDown = false; });
+                slider.addEventListener('mouseleave', () => isDown = false);
+                slider.addEventListener('mouseup', () => isDown = false);
                 slider.addEventListener('mousemove', (e) => {
                     if (!isDown) return;
                     e.preventDefault();
                     const x = e.pageX - slider.offsetLeft;
-                    const walk = (x - startX) * 2; // 捲動速度
+                    const walk = (x - startX) * 2; 
                     slider.scrollLeft = scrollLeft - walk;
                 });
             });
@@ -194,23 +297,35 @@
             document.getElementById('modal-rating').innerText = book.rating;
             
             const coverImg = document.getElementById('modal-cover-img');
-            coverImg.src = book.cover || '';
-            coverImg.style.display = book.cover ? 'block' : 'none';
+            if (book.cover) {
+                coverImg.src = book.cover;
+                coverImg.style.display = 'block';
+            } else {
+                coverImg.style.display = 'none';
+            }
 
-            let thoughts = "尚無心得";
-            let highlights = "尚無金句";
+            // 拆分心得與金句
+            let thoughts = "尚無紀錄";
+            let highlights = "尚無紀錄";
             if (book.note) {
                 const parts = book.note.split('【劃線金句】');
                 thoughts = parts[0].replace('【我的心得】', '').trim() || "無紀錄";
                 highlights = parts[1] ? parts[1].trim() : "無紀錄";
             }
-            document.getElementById('modal-thoughts').innerText = thoughts;
+
             document.getElementById('modal-highlights').innerText = highlights;
+            document.getElementById('modal-thoughts').innerText = thoughts;
             document.getElementById('note-modal').style.display = "block";
         }
 
-        function closeModal() { document.getElementById('note-modal').style.display = "none"; }
-        window.onclick = (e) => { if (e.target.className === 'modal') closeModal(); }
+        function closeModal() {
+            document.getElementById('note-modal').style.display = "none";
+        }
+
+        window.onclick = (e) => {
+            if (e.target.className === 'modal') closeModal();
+        }
+
         init();
     </script>
 </body>
