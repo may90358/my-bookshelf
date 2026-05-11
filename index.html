@@ -101,7 +101,7 @@
             text-align: center;
             pointer-events: none;
             word-break: break-all;
-            max-height: 134px; 
+            max-height: 136px; 
             display: flex;
             flex-direction: row; 
             justify-content: center;
@@ -114,7 +114,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.8);
         }
 
-        /* --- 彈窗優化 --- */
+        /* --- 彈窗樣式 --- */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); }
         
         .modal-container {
@@ -232,7 +232,7 @@
                             <h2 id="m-title" style="margin: 0 0 5px 0; font-family: serif; color: #1a1a1a;"></h2>
                             <div id="m-author" style="color: #666; font-size: 0.9rem;"></div>
                             <div id="m-rating" style="color: #d4af37; margin: 8px 0; font-size: 1rem;"></div>
-                            <div id="m-date" style="font-size: 0.7rem; background: #eee; padding: 2px 8px; border-radius: 4px; display: inline-block;"></div>
+                            <div id="m-date" style="font-size: 0.7rem; background: #eee; padding: 2px 8px; border-radius: 4px; display: inline-block; color: #555;"></div>
                         </div>
                     </div>
                     <div id="m-highlights"></div>
@@ -321,7 +321,7 @@
             currentIdx = index;
             updateModalContent();
             document.getElementById('book-modal').style.display = "block";
-            document.body.style.overflow = 'hidden'; // 禁止底層捲動
+            document.body.style.overflow = 'hidden'; 
         }
 
         function updateModalContent() {
@@ -329,7 +329,10 @@
             document.getElementById('m-title').innerText = book.title;
             document.getElementById('m-author').innerText = book.author;
             document.getElementById('m-rating').innerText = book.rating;
-            document.getElementById('m-date').innerText = `Catalogued: ${book.year}`;
+            
+            // 修正顯示日期：優先使用 date，否則使用 year
+            const displayDate = book.date ? book.date : `Catalogued: ${book.year}`;
+            document.getElementById('m-date').innerText = displayDate;
             
             const img = document.getElementById('m-cover');
             img.src = book.cover || '';
@@ -356,11 +359,8 @@
             }
             document.getElementById('m-thoughts').innerText = thoughts;
 
-            // 更新按鈕狀態
             document.querySelector('.prev-btn').disabled = (currentIdx === 0);
             document.querySelector('.next-btn').disabled = (currentIdx === currentYearBooks.length - 1);
-            
-            // 重置捲動位置
             document.querySelector('.open-book').scrollTop = 0;
         }
 
