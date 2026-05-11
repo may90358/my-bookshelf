@@ -3,135 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的互動書櫃 | Notion 精裝版</title>
+    <title>我的私藏圖書館 | Notion Bookshelf</title>
     <style>
         :root {
-            --shelf-color: #5d4037;
-            --shelf-depth: #3e2723;
-            --wall-color: #f4f1ea;
+            --wood-dark: #3e2723;
+            --wood-light: #5d4037;
+            --shelf-shadow: rgba(0,0,0,0.6);
             --paper-color: #fafafa;
-            --ink-color: #2c3e50;
-            --accent-color: #8d6e63;
         }
 
+        /* 1. 滿版背景設定 */
         body {
-            background-color: var(--wall-color);
-            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
             margin: 0;
-            padding-bottom: 100px;
+            padding: 0;
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+                        url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=2000&auto=format&fit=crop') no-repeat center center fixed;
+            background-size: cover;
+            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
+            color: white;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            overflow-x: hidden;
         }
 
-        h1 { margin: 60px 0 20px; color: #2c3e50; font-weight: 300; letter-spacing: 2px; }
+        h1 { 
+            margin: 40px 0; 
+            font-weight: 300; 
+            letter-spacing: 5px; 
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.8);
+            z-index: 10;
+        }
 
-        /* --- 書架顯示區 --- */
-        .bookshelf-container { width: 95%; max-width: 1100px; }
-        .year-section { margin-top: 50px; }
-        .year-label { font-size: 1.4rem; font-weight: bold; color: var(--accent-color); margin-bottom: 12px; border-left: 5px solid var(--shelf-color); padding-left: 15px; }
-        .shelf { position: relative; margin-bottom: 50px; }
+        /* 2. 三欄式書架結構 */
+        .library-wrapper {
+            display: flex;
+            width: 100%;
+            max-width: 1600px;
+            justify-content: center;
+            gap: 0;
+        }
+
+        /* 兩側假書裝飾區 */
+        .fake-shelf {
+            flex: 1;
+            opacity: 0.3;
+            filter: blur(2px);
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            gap: 100px;
+            padding-top: 50px;
+        }
+
+        /* 中間真實書籍區 */
+        .main-library {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(3px);
+            padding: 20px 40px 100px;
+            min-height: 100vh;
+            border-left: 1px solid rgba(255,255,255,0.1);
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .year-section { margin-top: 40px; }
+        .year-label { 
+            font-size: 1.6rem; 
+            margin-bottom: 20px; 
+            color: #d7ccc8;
+            border-bottom: 1px solid rgba(215, 204, 200, 0.3);
+            display: inline-block;
+            padding-right: 50px;
+        }
+        
+        /* 3. 木質感書架層板 */
+        .shelf { 
+            position: relative; 
+            margin-bottom: 60px; 
+        }
         
         .books-row { 
             display: flex; 
             align-items: flex-end; 
-            padding: 0 20px 15px 20px; 
-            gap: 8px; 
-            height: 260px; /* 稍微調高以容納可能變高的書 */
+            padding: 0 15px 5px; 
+            gap: 4px; 
+            height: 220px; 
             z-index: 2; 
             position: relative; 
             overflow-x: auto; 
-            cursor: grab; 
             scrollbar-width: none; 
-            -ms-overflow-style: none; 
-            user-select: none;
+            cursor: grab;
         }
         .books-row::-webkit-scrollbar { display: none; }
-        .books-row:active { cursor: grabbing; }
 
-        /* [關鍵修正] 書籍基礎樣式：允許寬度自適應 */
         .book { 
             cursor: pointer; 
-            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); 
+            transition: all 0.3s ease; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            position: relative; 
-            box-shadow: 2px 0 5px rgba(0,0,0,0.3); 
+            box-shadow: 3px 0 10px rgba(0,0,0,0.5); 
             border-radius: 2px 4px 4px 2px; 
+            border-left: 3px solid rgba(255,255,255,0.1); 
             flex-shrink: 0; 
-            min-width: 45px; /* 設定最小寬度，避免沒字時太扁 */
-            padding: 0 5px; /* 增加左右內距讓文字不貼邊 */
+            min-width: 45px;
+            padding: 0 5px;
         }
-        .book:hover { transform: translateY(-20px); z-index: 10; }
+        .book:hover { transform: translateY(-15px) scale(1.05); z-index: 10; box-shadow: 0 15px 30px rgba(0,0,0,0.8); }
 
-        /* [關鍵修正] 書名文字：允許折行且直式排列 */
         .spine-text { 
             writing-mode: vertical-rl; 
-            text-orientation: mixed;
             color: white; 
-            font-size: 14px; 
+            font-size: 13px; 
             line-height: 1.2;
-            padding: 15px 0; 
-            font-style: normal; 
-            pointer-events: none; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            max-height: 100%;
-            overflow: hidden;
-            word-break: break-all; /* 強制長字折行 */
+            word-break: break-all;
+            pointer-events: none;
         }
 
-        .shelf-board { height: 20px; background: linear-gradient(to bottom, var(--shelf-color), var(--shelf-depth)); width: 100%; border-radius: 4px; box-shadow: 0 8px 15px rgba(0,0,0,0.3); }
+        .shelf-board { 
+            height: 25px; 
+            background: linear-gradient(to bottom, #795548, #3e2723);
+            width: 100%; 
+            border-radius: 2px; 
+            box-shadow: 0 10px 20px var(--shelf-shadow);
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
 
-        /* --- 彈窗 UI --- */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); perspective: 2000px; }
+        /* 4. 彈窗 UI (保持精裝書質感) */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(8px); perspective: 2000px; }
         .modal-content { margin: 5vh auto; width: 90%; max-width: 1100px; position: relative; }
-        
-        .open-book { 
-            display: flex; background-color: #fff; border-bottom: 8px solid #bbb; border-right: 5px solid #bbb; 
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5); border-radius: 4px; transform: rotateX(5deg); 
-            transform-style: preserve-3d; height: 85vh; overflow: hidden; 
-        }
-
-        .page { flex: 1; padding: 40px; overflow-y: auto; color: var(--ink-color); display: flex; flex-direction: column; scrollbar-width: none; }
+        .open-book { display: flex; background-color: #fff; border-bottom: 8px solid #bbb; border-right: 5px solid #bbb; box-shadow: 0 30px 60px rgba(0,0,0,0.5); border-radius: 4px; height: 85vh; overflow: hidden; }
+        .page { flex: 1; padding: 40px; overflow-y: auto; color: #2c3e50; display: flex; flex-direction: column; scrollbar-width: none; }
         .page::-webkit-scrollbar { display: none; }
         .page.left { background-image: linear-gradient(to right, #fafafa 95%, #e0e0e0 100%); border-right: 1px solid rgba(0,0,0,0.05); }
         .page.right { background-image: linear-gradient(to left, #ffffff 95%, #e0e0e0 100%); }
-        .book-spine-crease { width: 15px; background: linear-gradient(to right, #dcdcdc, #ffffff 50%, #dcdcdc); flex-shrink: 0; z-index: 5; }
+        .book-spine-crease { width: 15px; background: linear-gradient(to right, #dcdcdc, #ffffff 50%, #dcdcdc); flex-shrink: 0; }
 
         .left-page-header { display: flex; align-items: flex-start; gap: 25px; margin-bottom: 30px; }
-        .book-cover-small { width: 130px; height: auto; border-radius: 4px; box-shadow: 0 5px 15px rgba(0,0,0,0.15); flex-shrink: 0; }
-        .book-info-text { display: flex; flex-direction: column; }
-        .modal-title { font-size: 1.5rem; margin: 0 0 10px 0; font-weight: bold; color: #1a1a1a; }
+        .book-cover-small { width: 130px; height: auto; border-radius: 4px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); flex-shrink: 0; }
+        .modal-title { font-size: 1.5rem; margin: 0 0 10px 0; font-weight: bold; }
         .modal-author { font-size: 1rem; color: #555; margin-bottom: 8px; }
         .modal-rating { font-size: 1.1rem; color: #f1c40f; margin-bottom: 12px; }
         .modal-date { font-size: 0.8rem; color: #888; background: #eee; padding: 4px 12px; border-radius: 12px; width: fit-content; }
 
-        .highlight-container { display: flex; flex-direction: column; gap: 15px; margin-top: 10px; }
-        .highlight-item {
-            line-height: 1.8; color: #444; background: rgba(0,0,0,0.04); 
-            padding: 15px 20px; border-radius: 10px; font-size: 0.95rem;
-            border-left: 4px solid var(--accent-color);
-        }
-
-        .section-label { font-size: 0.85rem; color: var(--accent-color); font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #e0e0e0; padding-bottom: 6px; letter-spacing: 1.5px; }
-        .thought-section { line-height: 2.1; font-size: 1.1rem; color: #2c3e50; white-space: pre-wrap; }
+        .highlight-container { display: flex; flex-direction: column; gap: 15px; }
+        .highlight-item { line-height: 1.8; color: #444; background: rgba(0,0,0,0.05); padding: 15px 20px; border-radius: 10px; border-left: 4px solid var(--wood-light); }
+        .thought-section { line-height: 2.1; font-size: 1.1rem; white-space: pre-wrap; }
+        .section-label { font-size: 0.85rem; color: var(--wood-light); font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #e0e0e0; padding-bottom: 6px; }
         .close-btn { position: absolute; right: -40px; top: -20px; font-size: 50px; cursor: pointer; color: #fff; z-index: 1001; }
 
-        @media (max-width: 800px) {
-            .left-page-header { flex-direction: column; align-items: center; text-align: center; }
-            .open-book { flex-direction: column; height: 90vh; }
-            .book-spine-crease { width: 100%; height: 10px; }
+        @media (max-width: 1000px) {
+            .fake-shelf { display: none; }
+            .main-library { flex: 1; width: 100%; }
         }
     </style>
 </head>
 <body>
 
-    <h1>My Reading Shelf</h1>
-    <div class="bookshelf-container" id="main-bookshelf"></div>
+    <h1>PRIVATE LIBRARY</h1>
+
+    <div class="library-wrapper">
+        <div class="fake-shelf">
+            <div class="shelf"><div class="books-row"></div><div class="shelf-board"></div></div>
+            <div class="shelf"><div class="books-row"></div><div class="shelf-board"></div></div>
+            <div class="shelf"><div class="books-row"></div><div class="shelf-board"></div></div>
+        </div>
+
+        <div class="main-library" id="main-bookshelf"></div>
+
+        <div class="fake-shelf">
+            <div class="shelf"><div class="books-row"></div><div class="shelf-board"></div></div>
+            <div class="shelf"><div class="books-row"></div><div class="shelf-board"></div></div>
+            <div class="shelf"><div class="books-row"></div><div class="shelf-board"></div></div>
+        </div>
+    </div>
 
     <div id="note-modal" class="modal">
         <div class="modal-content">
@@ -166,7 +212,7 @@
                 data.sort((a, b) => b.year - a.year); 
                 renderBookshelf(data);
                 enableDragScroll();
-            } catch (e) { console.error("Error loading books"); }
+            } catch (e) { console.error("Error"); }
         }
 
         function renderBookshelf(data) {
@@ -177,7 +223,13 @@
             years.forEach(year => {
                 const section = document.createElement('div');
                 section.className = 'year-section';
-                section.innerHTML = `<div class="year-label">${year} 年</div><div class="shelf"><div class="books-row" id="shelf-${year}"></div><div class="shelf-board"></div></div>`;
+                section.innerHTML = `
+                    <div class="year-label">${year} REFERENCE</div>
+                    <div class="shelf">
+                        <div class="books-row" id="shelf-${year}"></div>
+                        <div class="shelf-board"></div>
+                    </div>
+                `;
                 mainContainer.appendChild(section);
 
                 const row = document.getElementById(`shelf-${year}`);
@@ -185,13 +237,9 @@
                     const bookEl = document.createElement('div');
                     bookEl.className = 'book';
                     bookEl.style.backgroundColor = book.color || '#2c3e50';
-                    bookEl.style.height = `${book.height || 200}px`;
-                    
-                    // [優化] 根據書名長度動態調整書脊寬度
-                    // 如果書名超過 6 個字，稍微加寬書脊
-                    const minWidth = book.title.length > 6 ? 60 : 45;
-                    bookEl.style.width = `${Math.max(book.width || 0, minWidth)}px`;
-                    
+                    bookEl.style.height = `${book.height || 180}px`;
+                    const dynamicWidth = book.title.length > 6 ? 65 : 48;
+                    bookEl.style.width = `${dynamicWidth}px`;
                     bookEl.innerHTML = `<div class="spine-text">${book.title}</div>`;
                     bookEl.onclick = () => openNote(book);
                     row.appendChild(bookEl);
@@ -214,8 +262,7 @@
             document.getElementById('modal-title').innerText = book.title;
             document.getElementById('modal-author').innerText = book.author;
             document.getElementById('modal-rating').innerText = book.rating;
-            document.getElementById('modal-date').innerText = `完讀：${book.year}`;
-            
+            document.getElementById('modal-date').innerText = `Finished: ${book.year}`;
             const coverImg = document.getElementById('modal-cover-img');
             coverImg.src = book.cover || '';
             coverImg.style.display = book.cover ? 'block' : 'none';
@@ -237,10 +284,7 @@
                     item.innerText = text.trim();
                     highlightContainer.appendChild(item);
                 });
-            } else {
-                highlightContainer.innerHTML = '<div class="highlight-item">尚無金句紀錄</div>';
             }
-
             document.getElementById('modal-thoughts').innerText = thoughts;
             document.getElementById('note-modal').style.display = "block";
         }
