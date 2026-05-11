@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的互動書櫃 | 精裝 3D 版</title>
+    <title>我的互動書櫃 | Notion 精裝版</title>
     <style>
         :root {
             --shelf-color: #5d4037;
@@ -34,33 +34,18 @@
         .shelf { position: relative; margin-bottom: 50px; }
         
         .books-row { 
-            display: flex; 
-            align-items: flex-end; 
-            padding: 0 20px 15px 20px; 
-            gap: 6px; 
-            height: 240px; 
-            z-index: 2; 
-            position: relative; 
-            overflow-x: auto; 
-            cursor: grab; 
-            scrollbar-width: none; 
-            -ms-overflow-style: none; 
-            user-select: none;
+            display: flex; align-items: flex-end; padding: 0 20px 15px 20px; gap: 6px; height: 240px; 
+            z-index: 2; position: relative; overflow-x: auto; cursor: grab; scrollbar-width: none; 
+            -ms-overflow-style: none; user-select: none;
         }
         .books-row::-webkit-scrollbar { display: none; }
         .books-row:active { cursor: grabbing; }
 
         .book { 
-            cursor: pointer; 
-            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            position: relative; 
-            box-shadow: 2px 0 5px rgba(0,0,0,0.3); 
-            border-radius: 2px 4px 4px 2px; 
-            border-left: 2px solid rgba(255,255,255,0.1); 
-            flex-shrink: 0; 
+            cursor: pointer; transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); 
+            display: flex; align-items: center; justify-content: center; position: relative; 
+            box-shadow: 2px 0 5px rgba(0,0,0,0.3); border-radius: 2px 4px 4px 2px; 
+            border-left: 2px solid rgba(255,255,255,0.1); flex-shrink: 0; 
         }
         .book:hover { transform: translateY(-20px); z-index: 10; }
         .spine-text { writing-mode: vertical-rl; color: white; font-size: 14px; padding: 10px 0; font-style: normal; pointer-events: none; white-space: nowrap; }
@@ -71,67 +56,37 @@
         .modal-content { margin: 5vh auto; width: 90%; max-width: 1100px; position: relative; }
         
         .open-book { 
-            display: flex; 
-            background-color: #fff; 
-            border-bottom: 8px solid #bbb; 
-            border-right: 5px solid #bbb; 
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5); 
-            border-radius: 4px; 
-            transform: rotateX(5deg); 
-            transform-style: preserve-3d; 
-            height: 85vh; 
-            overflow: hidden; 
+            display: flex; background-color: #fff; border-bottom: 8px solid #bbb; border-right: 5px solid #bbb; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5); border-radius: 4px; transform: rotateX(5deg); 
+            transform-style: preserve-3d; height: 85vh; overflow: hidden; 
         }
 
         .page { flex: 1; padding: 40px; overflow-y: auto; color: var(--ink-color); display: flex; flex-direction: column; scrollbar-width: none; }
         .page::-webkit-scrollbar { display: none; }
-        
         .page.left { background-image: linear-gradient(to right, #fafafa 95%, #e0e0e0 100%); border-right: 1px solid rgba(0,0,0,0.05); }
         .page.right { background-image: linear-gradient(to left, #ffffff 95%, #e0e0e0 100%); }
-
         .book-spine-crease { width: 15px; background: linear-gradient(to right, #dcdcdc, #ffffff 50%, #dcdcdc); flex-shrink: 0; z-index: 5; }
 
-        /* --- 左頁排版 --- */
-        .left-page-header {
-            display: flex;
-            align-items: flex-start;
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .book-cover-small { 
-            width: 130px; 
-            height: auto; 
-            border-radius: 4px; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.15); 
-            flex-shrink: 0;
-        }
-
+        /* 左頁排版：圖片在左，資訊在右 */
+        .left-page-header { display: flex; align-items: flex-start; gap: 25px; margin-bottom: 30px; }
+        .book-cover-small { width: 130px; height: auto; border-radius: 4px; box-shadow: 0 5px 15px rgba(0,0,0,0.15); flex-shrink: 0; }
         .book-info-text { display: flex; flex-direction: column; }
-        .modal-title { font-size: 1.5rem; margin: 0 0 10px 0; font-style: normal; line-height: 1.2; font-weight: bold; color: #1a1a1a; }
-        .modal-author { font-size: 1rem; color: #555; margin-bottom: 8px; font-style: normal; }
+        .modal-title { font-size: 1.5rem; margin: 0 0 10px 0; font-weight: bold; color: #1a1a1a; }
+        .modal-author { font-size: 1rem; color: #555; margin-bottom: 8px; }
         .modal-rating { font-size: 1.1rem; color: #f1c40f; margin-bottom: 12px; }
-        .modal-date { font-size: 0.8rem; color: #888; font-style: normal; background: #eee; padding: 4px 12px; border-radius: 12px; width: fit-content; }
+        .modal-date { font-size: 0.8rem; color: #888; background: #eee; padding: 4px 12px; border-radius: 12px; width: fit-content; }
 
-        .section-label { 
-            font-size: 0.85rem; color: var(--accent-color); font-weight: bold; 
-            margin-bottom: 15px; border-bottom: 1px solid #e0e0e0; padding-bottom: 6px; 
-            letter-spacing: 1.5px;
-        }
-
-        /* [關鍵修正] 金句改為卡片式區隔 */
-        .highlight-container { display: flex; flex-direction: column; gap: 12px; }
+        /* 金句卡片容器 */
+        .highlight-container { display: flex; flex-direction: column; gap: 15px; margin-top: 10px; }
         .highlight-item {
-            line-height: 1.7; 
-            color: #444; 
-            font-style: normal; 
-            background: rgba(0,0,0,0.04); 
-            padding: 12px 18px; 
-            border-radius: 8px; 
-            font-size: 0.92rem;
+            line-height: 1.8; color: #444; background: rgba(0,0,0,0.04); 
+            padding: 15px 20px; border-radius: 10px; font-size: 0.95rem;
+            border-left: 4px solid var(--accent-color);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
 
-        .thought-section { line-height: 2.1; font-size: 1.1rem; color: #2c3e50; white-space: pre-wrap; font-style: normal; }
+        .section-label { font-size: 0.85rem; color: var(--accent-color); font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #e0e0e0; padding-bottom: 6px; letter-spacing: 1.5px; }
+        .thought-section { line-height: 2.1; font-size: 1.1rem; color: #2c3e50; white-space: pre-wrap; }
         .close-btn { position: absolute; right: -40px; top: -20px; font-size: 50px; cursor: pointer; color: #fff; z-index: 1001; }
 
         @media (max-width: 800px) {
@@ -188,13 +143,11 @@
             const mainContainer = document.getElementById('main-bookshelf');
             mainContainer.innerHTML = '';
             const years = [...new Set(data.map(b => b.year))].sort((a, b) => b - a);
-
             years.forEach(year => {
                 const section = document.createElement('div');
                 section.className = 'year-section';
                 section.innerHTML = `<div class="year-label">${year} 年</div><div class="shelf"><div class="books-row" id="shelf-${year}"></div><div class="shelf-board"></div></div>`;
                 mainContainer.appendChild(section);
-
                 const row = document.getElementById(`shelf-${year}`);
                 data.filter(b => b.year === year).forEach(book => {
                     const bookEl = document.createElement('div');
@@ -224,7 +177,7 @@
             document.getElementById('modal-title').innerText = book.title;
             document.getElementById('modal-author').innerText = book.author;
             document.getElementById('modal-rating').innerText = book.rating;
-            document.getElementById('modal-date').innerText = `Finished in ${book.year}`;
+            document.getElementById('modal-date').innerText = `完讀：${book.year}`;
             
             const coverImg = document.getElementById('modal-cover-img');
             coverImg.src = book.cover || '';
@@ -237,17 +190,19 @@
                 rawHighlights = parts[1] ? parts[1].trim() : "";
             }
 
-            // [核心修正] 處理金句卡片化
+            // --- 修正後的 Notion 區塊拆分邏輯 ---
             const highlightContainer = document.getElementById('modal-highlights');
             highlightContainer.innerHTML = '';
             
             if (rawHighlights) {
-                // 按換行拆分，並過濾掉空行
-                const lines = rawHighlights.split('\n').filter(line => line.trim().length > 0);
-                lines.forEach(line => {
+                // 使用正則表達式拆分，適應多個換行符號（Notion 區塊轉換常見現象）
+                // 這樣可以確保「一個段落」就是「一個卡片」，而不是一行一個卡片
+                const blocks = rawHighlights.split(/\n\s*\n/).filter(b => b.trim().length > 0);
+                
+                blocks.forEach(text => {
                     const item = document.createElement('div');
                     item.className = 'highlight-item';
-                    item.innerText = line.trim();
+                    item.innerText = text.trim();
                     highlightContainer.appendChild(item);
                 });
             } else {
