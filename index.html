@@ -101,7 +101,7 @@
             text-align: center;
             pointer-events: none;
             word-break: break-all;
-            max-height: 136px; 
+            max-height: 134px; 
             display: flex;
             flex-direction: row; 
             justify-content: center;
@@ -159,7 +159,15 @@
         .page.left { background: #fafafa; border-right: 1px solid #eee; }
         .book-spine-crease { width: 15px; background: linear-gradient(to right, #ddd, #fff 50%, #ddd); flex-shrink: 0; }
         
-        /* 底部導航列 */
+        /* 書封固定高度樣式 */
+        #m-cover {
+            height: 140px; 
+            width: auto;
+            object-fit: contain; 
+            border-radius: 4px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
         .modal-nav {
             display: flex;
             justify-content: space-between;
@@ -195,21 +203,16 @@
             font-size: 0.9rem;
         }
 
-        /* --- 手機版 RWD --- */
         @media (max-width: 800px) {
             h1 { font-size: 1.4rem; margin: 25px 0; }
-            .modal-container { height: 95vh; margin: 2.5vh auto; }
-            
+            .modal-container { height: 92vh; margin: 4vh auto; width: 92%; }
             .open-book { flex-direction: column; }
-            .page { width: 100%; flex: none; padding: 20px; box-sizing: border-box; }
+            .page { width: 100%; flex: none; padding: 25px; box-sizing: border-box; }
             .page.left { border-right: none; border-bottom: 1px solid #eee; }
-            
             .book-spine-crease { width: 100%; height: 10px; background: linear-gradient(to bottom, #ddd, #fff 50%, #ddd); }
-            
-            .modal-nav { padding: 10px 20px; }
-            .nav-btn { padding: 10px 15px; font-size: 13px; }
-
-            #m-cover { width: 80px !important; }
+            .modal-nav { padding: 10px 15px; }
+            .nav-btn { padding: 8px 12px; font-size: 13px; }
+            #m-cover { height: 120px !important; }
             #m-title { font-size: 1.1rem !important; }
         }
     </style>
@@ -223,29 +226,25 @@
     <div id="book-modal" class="modal">
         <div class="modal-container">
             <span class="close-btn" onclick="closeModal()">&times;</span>
-            
             <div class="open-book">
                 <div class="page left">
                     <div style="display: flex; gap: 15px; margin-bottom: 20px; align-items: flex-start;">
-                        <img id="m-cover" style="width: 100px; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);" src="" alt="">
+                        <img id="m-cover" src="" alt="Book Cover">
                         <div style="flex: 1;">
                             <h2 id="m-title" style="margin: 0 0 5px 0; font-family: serif; color: #1a1a1a;"></h2>
                             <div id="m-author" style="color: #666; font-size: 0.9rem;"></div>
                             <div id="m-rating" style="color: #d4af37; margin: 8px 0; font-size: 1rem;"></div>
-                            <div id="m-date" style="font-size: 0.7rem; background: #eee; padding: 2px 8px; border-radius: 4px; display: inline-block; color: #555;"></div>
+                            <div id="m-date" style="font-size: 0.75rem; background: #f0f0f0; padding: 4px 10px; border-radius: 4px; display: inline-block; color: #555; border: 1px solid #ddd;"></div>
                         </div>
                     </div>
                     <div id="m-highlights"></div>
                 </div>
-
                 <div class="book-spine-crease"></div>
-
                 <div class="page">
-                    <div style="font-size: 0.75rem; color: #b8860b; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">REFLECTIONS</div>
+                    <div style="font-size: 0.75rem; color: #b8860b; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; letter-spacing: 1px;">REFLECTIONS</div>
                     <div id="m-thoughts" style="line-height: 1.8; white-space: pre-wrap; font-size: 0.95rem; color: #333;"></div>
                 </div>
             </div>
-
             <div class="modal-nav">
                 <button class="nav-btn prev-btn" onclick="changeBook(-1)"><i class="fas fa-chevron-left"></i> 上一本</button>
                 <button class="nav-btn next-btn" onclick="changeBook(1)">下一本 <i class="fas fa-chevron-right"></i></button>
@@ -304,11 +303,9 @@
                     const bg = bookBackgrounds[Math.floor(Math.random() * bookBackgrounds.length)];
                     const h = 210 + Math.floor(Math.random() * 30);
                     const w = book.title.length > 8 ? 85 : 58;
-                    
                     bookEl.style.backgroundImage = `url('${bg}')`;
                     bookEl.style.height = `${h}px`;
                     bookEl.style.width = `${w}px`;
-                    
                     bookEl.innerHTML = `<div class="spine-text">${book.title}</div>`;
                     bookEl.onclick = () => openModal(yearBooks, index);
                     row.appendChild(bookEl);
@@ -330,9 +327,13 @@
             document.getElementById('m-author').innerText = book.author;
             document.getElementById('m-rating').innerText = book.rating;
             
-            // 修正顯示日期：優先使用 date，否則使用 year
-            const displayDate = book.date ? book.date : `Catalogued: ${book.year}`;
-            document.getElementById('m-date').innerText = displayDate;
+            const fullDate = book.date || book.finish_date || book.read_date;
+            const dateDisplay = document.getElementById('m-date');
+            if (fullDate && fullDate.length > 4) {
+                dateDisplay.innerText = `Read on: ${fullDate}`;
+            } else {
+                dateDisplay.innerText = `Catalogued: ${book.year}`;
+            }
             
             const img = document.getElementById('m-cover');
             img.src = book.cover || '';
@@ -378,14 +379,14 @@
                 let isDown = false, startX, scrollLeft;
                 const start = (e) => {
                     isDown = true;
-                    startX = (e.pageX || e.touches[0].pageX) - slider.offsetLeft;
+                    startX = (e.pageX || (e.touches && e.touches[0].pageX)) - slider.offsetLeft;
                     scrollLeft = slider.scrollLeft;
                 };
                 const end = () => isDown = false;
                 const move = (e) => {
                     if (!isDown) return;
                     e.preventDefault();
-                    const x = (e.pageX || e.touches[0].pageX) - slider.offsetLeft;
+                    const x = (e.pageX || (e.touches && e.touches[0].pageX)) - slider.offsetLeft;
                     slider.scrollLeft = scrollLeft - (x - startX) * 2;
                 };
                 slider.addEventListener('mousedown', start);
@@ -403,15 +404,6 @@
         }
         
         window.onclick = (e) => { if (e.target.className === 'modal') closeModal(); }
-        
-        document.addEventListener('keydown', (e) => {
-            if (document.getElementById('book-modal').style.display === "block") {
-                if (e.key === "ArrowLeft") changeBook(-1);
-                if (e.key === "ArrowRight") changeBook(1);
-                if (e.key === "Escape") closeModal();
-            }
-        });
-
         init();
     </script>
 </body>
