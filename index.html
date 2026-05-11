@@ -8,13 +8,12 @@
         :root {
             --gold-reflect: #f9e29c;
             --shelf-wood: #1a0f0d;
-            /* 燙金紋理圖片 */
-            --book-texture: url('https://raw.githubusercontent.com/may90358/my-bookshelf/74f71560654c9d3e38ffc33de8ff5bcd1207ad84/book_bg.png');
         }
 
         body {
             margin: 0;
             padding: 0;
+            /* 背景圖：古典圖書館 */
             background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
                         url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=2000&auto=format&fit=crop') no-repeat center center fixed;
             background-size: cover;
@@ -66,13 +65,13 @@
             align-items: flex-end;
             padding: 0 10px 4px;
             gap: 2px;
-            height: 260px;
+            height: 280px; /* 增加高度容納動態高度 */
             overflow-x: auto;
             scrollbar-width: none;
         }
         .books-row::-webkit-scrollbar { display: none; }
 
-        /* [關鍵修改] 深色精裝書脊樣式 */
+        /* 精裝書脊樣式 */
         .book {
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
@@ -80,13 +79,12 @@
             flex-shrink: 0;
             border-radius: 2px 5px 5px 2px;
             
-            /* 1. 核心背景：疊加深色漸層與燙金紋理圖片 */
-            background-image: linear-gradient(to right, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 20%, rgba(0,0,0,0) 80%, rgba(0,0,0,0.4) 100%), var(--book-texture);
+            /* 背景混合處理：確保圖片與深色融合 */
             background-size: cover;
             background-position: center;
-            background-blend-mode: multiply; /* 讓背景色與圖片完美融合 */
+            background-blend-mode: multiply;
 
-            /* 2. 立體感陰影：模擬精裝書左側的壓痕 */
+            /* 立體感陰影 */
             box-shadow: 
                 inset 6px 0 8px -2px rgba(0,0,0,0.8), 
                 inset -2px 0 5px rgba(0,0,0,0.3),
@@ -108,18 +106,18 @@
         /* 燙金字體效果 */
         .spine-text {
             writing-mode: vertical-rl;
-            color: #f9e29c; /* 經典金箔色 */
+            color: #f9e29c; 
             font-size: 15px;
             font-weight: 600;
             letter-spacing: 3px;
-            /* 壓印感陰影 */
             text-shadow: 
-                -1px -1px 0 rgba(0,0,0,0.5), 
-                1px 1px 0 rgba(255,255,255,0.2);
+                -1px -1px 0 rgba(0,0,0,0.6), 
+                1px 1px 0 rgba(255,255,255,0.1);
             padding: 20px 0;
             text-align: center;
             pointer-events: none;
             word-break: break-all;
+            max-height: 90%;
         }
 
         /* 木頭層板 */
@@ -183,6 +181,17 @@
     </div>
 
     <script>
+        // 隨機背景圖片陣列
+        const bookBackgrounds = [
+            'https://raw.githubusercontent.com/may90358/my-bookshelf/refs/heads/main/images/book_bg1.png',
+            'https://raw.githubusercontent.com/may90358/my-bookshelf/refs/heads/main/images/book_bg2.png',
+            'https://raw.githubusercontent.com/may90358/my-bookshelf/refs/heads/main/images/book_bg3.png',
+            'https://raw.githubusercontent.com/may90358/my-bookshelf/refs/heads/main/images/book_bg4.png',
+            'https://raw.githubusercontent.com/may90358/my-bookshelf/refs/heads/main/images/book_bg5.png',
+            'https://raw.githubusercontent.com/may90358/my-bookshelf/refs/heads/main/images/book_bg6.png',
+            'https://raw.githubusercontent.com/may90358/my-bookshelf/refs/heads/main/images/book_bg7.png'
+        ];
+
         async function init() {
             try {
                 const response = await fetch('books.json');
@@ -213,13 +222,18 @@
                     const bookEl = document.createElement('div');
                     bookEl.className = 'book';
                     
-                    // 根據書名長度動態調整，並將顏色變暗/加深
-                    const height = 200 + Math.floor(Math.random() * 35);
+                    // 1. 隨機選取一張背景圖
+                    const randomBg = bookBackgrounds[Math.floor(Math.random() * bookBackgrounds.length)];
+                    
+                    // 2. 設定動態高度與寬度
+                    const height = 210 + Math.floor(Math.random() * 40);
                     const width = book.title.length > 7 ? 75 : 55;
                     
-                    // 讓原本 Notion 的顏色與深黑色混合，達到「暗一點、深一點」的效果
+                    // 3. 設定背景色（變暗）並疊加隨機紋理圖片
                     const baseColor = book.color || '#2c3e50';
                     bookEl.style.backgroundColor = baseColor;
+                    bookEl.style.backgroundImage = `linear-gradient(to right, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 20%, rgba(0,0,0,0) 80%, rgba(0,0,0,0.4) 100%), url('${randomBg}')`;
+                    
                     bookEl.style.height = `${height}px`;
                     bookEl.style.width = `${width}px`;
                     
