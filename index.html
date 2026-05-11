@@ -9,6 +9,7 @@
         :root {
             --gold-bright: #ffd700;
             --gold-text: #eec16d;
+            --shelf-wood: #2b1d1a;
         }
 
         body {
@@ -51,20 +52,13 @@
             align-items: baseline;
         }
 
-        .book-count {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
-            margin-left: 15px;
-            font-weight: normal;
-        }
-
         .shelf { position: relative; margin-bottom: 60px; }
         
         .books-row {
             display: flex;
             align-items: flex-end;
             padding: 0 5px 5px;
-            gap: 2px; 
+            gap: 4px; 
             height: 280px;
             overflow-x: auto;
             scrollbar-width: none;
@@ -72,38 +66,25 @@
         }
         .books-row::-webkit-scrollbar { display: none; }
 
+        /* 書架上的書本樣式：改用封面圖 */
         .book {
             cursor: pointer;
-            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            transition: all 0.3s ease;
             position: relative;
             flex-shrink: 0;
-            border-radius: 2px 4px 4px 2px;
-            background-size: 100% 100%;
-            box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+            border-radius: 1px 3px 3px 1px;
+            background-color: #333;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 3px 0 10px rgba(0,0,0,0.4);
+            border-left: 2px solid rgba(0,0,0,0.2);
         }
 
-        .book:hover { transform: translateY(-20px); z-index: 10; filter: brightness(1.1); }
-
-        .spine-text {
-            writing-mode: vertical-rl; 
-            direction: ltr;           
-            color: #fcf4d9;
-            font-size: 14px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
-            padding: 10px 0;
-            text-align: center;
-            pointer-events: none;
-            word-break: break-all;
-            max-height: 134px; 
-            display: flex;
-            flex-direction: row; 
-            justify-content: center;
+        .book:hover { 
+            transform: translateY(-15px) scale(1.05); 
+            z-index: 10; 
+            filter: brightness(1.2);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.6);
         }
 
         .shelf-board {
@@ -113,6 +94,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.8);
         }
 
+        /* --- 彈窗樣式 --- */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); }
         
         .modal-container {
@@ -126,44 +108,18 @@
             background-color: #fff;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         }
 
-        .close-btn { 
-            position: absolute; 
-            right: 15px; 
-            top: 10px; 
-            font-size: 35px; 
-            color: #333; 
-            cursor: pointer; 
-            z-index: 2100;
-            line-height: 1;
-        }
+        .close-btn { position: absolute; right: 15px; top: 10px; font-size: 35px; color: #333; cursor: pointer; z-index: 2100; }
 
-        .open-book { 
-            display: flex; 
-            flex: 1;
-            overflow-y: auto;
-            scrollbar-width: none;
-        }
+        .open-book { display: flex; flex: 1; overflow-y: auto; scrollbar-width: none; }
         .open-book::-webkit-scrollbar { display: none; }
         
-        .page { 
-            flex: 1; 
-            padding: 30px; 
-            color: #333; 
-        }
-
+        .page { flex: 1; padding: 30px; color: #333; }
         .page.left { background: #fafafa; border-right: 1px solid #eee; }
         .book-spine-crease { width: 15px; background: linear-gradient(to right, #ddd, #fff 50%, #ddd); flex-shrink: 0; }
         
-        #m-cover {
-            height: 140px; 
-            width: auto;
-            object-fit: contain; 
-            border-radius: 4px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
+        #m-cover { height: 140px; width: auto; object-fit: contain; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
         .modal-nav {
             display: flex;
@@ -175,42 +131,17 @@
         }
 
         .nav-btn {
-            background: #333;
-            color: var(--gold-bright);
-            border: none;
-            padding: 8px 18px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: 0.2s;
+            background: #333; color: var(--gold-bright); border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 8px;
         }
         .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-        .nav-btn:hover:not(:disabled) { background: #000; }
 
-        .highlight-item { 
-            background: #fdfaf5; 
-            padding: 12px; 
-            margin-bottom: 12px; 
-            border-left: 4px solid var(--gold-bright); 
-            color: #444; 
-            line-height: 1.6; 
-            font-size: 0.9rem;
-        }
+        .highlight-item { background: #fdfaf5; padding: 12px; margin-bottom: 12px; border-left: 4px solid var(--gold-bright); color: #444; font-size: 0.9rem; line-height: 1.6; }
 
         @media (max-width: 800px) {
-            h1 { font-size: 1.4rem; margin: 25px 0; }
-            .modal-container { height: 92vh; margin: 4vh auto; width: 92%; }
+            .modal-container { height: 92vh; margin: 4vh auto; }
             .open-book { flex-direction: column; }
-            .page { width: 100%; flex: none; padding: 25px; box-sizing: border-box; }
-            .page.left { border-right: none; border-bottom: 1px solid #eee; }
-            .book-spine-crease { width: 100%; height: 10px; background: linear-gradient(to bottom, #ddd, #fff 50%, #ddd); }
-            .modal-nav { padding: 10px 15px; }
-            .nav-btn { padding: 8px 12px; font-size: 13px; }
-            #m-cover { height: 120px !important; }
-            #m-title { font-size: 1.1rem !important; }
+            .page { width: 100%; padding: 25px; }
+            #m-cover { height: 120px; }
         }
     </style>
 </head>
@@ -226,19 +157,19 @@
             <div class="open-book">
                 <div class="page left">
                     <div style="display: flex; gap: 15px; margin-bottom: 20px; align-items: flex-start;">
-                        <img id="m-cover" src="" alt="Book Cover">
+                        <img id="m-cover" src="" alt="Cover">
                         <div style="flex: 1;">
-                            <h2 id="m-title" style="margin: 0 0 5px 0; font-family: serif; color: #1a1a1a;"></h2>
+                            <h2 id="m-title" style="margin: 0 0 5px 0; color: #1a1a1a;"></h2>
                             <div id="m-author" style="color: #666; font-size: 0.9rem;"></div>
-                            <div id="m-rating" style="color: #d4af37; margin: 8px 0; font-size: 1rem;"></div>
-                            <div id="m-date" style="font-size: 0.75rem; background: #f0f0f0; padding: 4px 10px; border-radius: 4px; display: inline-block; color: #555; border: 1px solid #ddd;"></div>
+                            <div id="m-rating" style="color: #d4af37; margin: 8px 0;"></div>
+                            <div id="m-date" style="font-size: 0.75rem; background: #f0f0f0; padding: 4px 10px; border-radius: 4px; display: inline-block; color: #555;"></div>
                         </div>
                     </div>
                     <div id="m-highlights"></div>
                 </div>
                 <div class="book-spine-crease"></div>
                 <div class="page">
-                    <div style="font-size: 0.75rem; color: #b8860b; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; letter-spacing: 1px;">REFLECTIONS</div>
+                    <div style="font-size: 0.75rem; color: #b8860b; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">REFLECTIONS</div>
                     <div id="m-thoughts" style="line-height: 1.8; white-space: pre-wrap; font-size: 0.95rem; color: #333;"></div>
                 </div>
             </div>
@@ -250,16 +181,6 @@
     </div>
 
     <script>
-        const bookBackgrounds = [
-            'https://raw.githubusercontent.com/may90358/my-bookshelf/refs/heads/main/images/book_bg1.png',
-            'https://raw.githubusercontent.com/may90358/my-bookshelf/refs/heads/main/images/book_bg2.png',
-            'https://raw.githubusercontent.com/may90358/my-bookshelf/refs/heads/main/images/book_bg3.png',
-            'https://raw.githubusercontent.com/may90358/my-bookshelf/refs/heads/main/images/book_bg4.png',
-            'https://raw.githubusercontent.com/may90358/my-bookshelf/refs/heads/main/images/book_bg5.png',
-            'https://raw.githubusercontent.com/may90358/my-bookshelf/refs/heads/main/images/book_bg6.png',
-            'https://raw.githubusercontent.com/may90358/my-bookshelf/refs/heads/main/images/book_bg7.png'
-        ];
-
         let allBooks = [];
         let currentYearBooks = [];
         let currentIdx = -1;
@@ -283,7 +204,7 @@
                 const yearBooks = allBooks.filter(b => b.year === year);
                 const section = document.createElement('div');
                 section.innerHTML = `
-                    <div class="year-label">${year} COLLECTION <span class="book-count">(${yearBooks.length} BOOKS)</span></div>
+                    <div class="year-label">${year} COLLECTION</div>
                     <div class="shelf">
                         <div class="books-row" id="shelf-${year}"></div>
                         <div class="shelf-board"></div>
@@ -295,13 +216,17 @@
                 yearBooks.forEach((book, index) => {
                     const bookEl = document.createElement('div');
                     bookEl.className = 'book';
-                    const bg = bookBackgrounds[Math.floor(Math.random() * bookBackgrounds.length)];
-                    const h = 210 + Math.floor(Math.random() * 30);
-                    const w = book.title.length > 8 ? 85 : 58;
-                    bookEl.style.backgroundImage = `url('${bg}')`;
+                    
+                    // 設定書背顯示封面
+                    if (book.cover) {
+                        bookEl.style.backgroundImage = `url('${book.cover}')`;
+                    }
+                    
+                    // 隨機一點高度差異增加真實感
+                    const h = 220 + Math.floor(Math.random() * 25);
                     bookEl.style.height = `${h}px`;
-                    bookEl.style.width = `${w}px`;
-                    bookEl.innerHTML = `<div class="spine-text">${book.title}</div>`;
+                    bookEl.style.width = `55px`; // 固定書背寬度
+                    
                     bookEl.onclick = () => openModal(yearBooks, index);
                     row.appendChild(bookEl);
                 });
@@ -322,21 +247,13 @@
             document.getElementById('m-author').innerText = book.author;
             document.getElementById('m-rating').innerText = book.rating;
             
-            // --- Notion 欄位匹配調整 ---
-            // 優先讀取 "Date Finished"，其次為其他可能名稱
-            const finishedDate = book["Date Finished"] || book.date || book.finish_date;
-            const dateDisplay = document.getElementById('m-date');
-            
-            if (finishedDate) {
-                dateDisplay.innerText = `Finished: ${finishedDate}`;
-            } else {
-                dateDisplay.innerText = `Catalogued: ${book.year}`;
-            }
+            // 讀取 Notion 的 "Date Finished" 欄位
+            const finishedDate = book["Date Finished"] || book.date || book.year;
+            document.getElementById('m-date').innerText = `Finished: ${finishedDate}`;
             
             const img = document.getElementById('m-cover');
             img.src = book.cover || '';
-            img.style.display = book.cover ? 'block' : 'none';
-
+            
             let thoughts = "No reflections available.", highlights = "";
             if (book.note) {
                 const parts = book.note.split('【劃線金句】');
@@ -371,34 +288,27 @@
             }
         }
 
+        function closeModal() { 
+            document.getElementById('book-modal').style.display = "none"; 
+            document.body.style.overflow = 'auto';
+        }
+
         function enableDragScroll() {
             const sliders = document.querySelectorAll('.books-row');
             sliders.forEach(slider => {
                 let isDown = false, startX, scrollLeft;
-                const start = (e) => {
-                    isDown = true;
-                    startX = (e.pageX || (e.touches && e.touches[0].pageX)) - slider.offsetLeft;
-                    scrollLeft = slider.scrollLeft;
-                };
-                const end = () => isDown = false;
-                const move = (e) => {
+                slider.addEventListener('mousedown', (e) => {
+                    isDown = true; startX = e.pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft;
+                });
+                slider.addEventListener('mouseleave', () => isDown = false);
+                slider.addEventListener('mouseup', () => isDown = false);
+                slider.addEventListener('mousemove', (e) => {
                     if (!isDown) return;
                     e.preventDefault();
-                    const x = (e.pageX || (e.touches && e.touches[0].pageX)) - slider.offsetLeft;
+                    const x = e.pageX - slider.offsetLeft;
                     slider.scrollLeft = scrollLeft - (x - startX) * 2;
-                };
-                slider.addEventListener('mousedown', start);
-                slider.addEventListener('touchstart', start, {passive: true});
-                window.addEventListener('mouseup', end);
-                window.addEventListener('touchend', end);
-                slider.addEventListener('mousemove', move);
-                slider.addEventListener('touchmove', move, {passive: false});
+                });
             });
-        }
-
-        function closeModal() { 
-            document.getElementById('book-modal').style.display = "none"; 
-            document.body.style.overflow = 'auto';
         }
         
         window.onclick = (e) => { if (e.target.className === 'modal') closeModal(); }
