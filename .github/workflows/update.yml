@@ -1,18 +1,18 @@
 name: Notion to Bookshelf Sync
 on:
   schedule:
-    - cron: '0 0 * * *' # 每天凌晨 12 點自動抓取
-  workflow_dispatch: # 讓你可以點擊按鈕手動強制更新
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '24'
       - name: Install dependencies
         run: npm install
       - name: Run fetch script
