@@ -34,21 +34,56 @@
         .shelf { position: relative; margin-bottom: 50px; }
         
         .books-row { 
-            display: flex; align-items: flex-end; padding: 0 20px 15px 20px; gap: 6px; height: 240px; 
-            z-index: 2; position: relative; overflow-x: auto; cursor: grab; scrollbar-width: none; 
-            -ms-overflow-style: none; user-select: none;
+            display: flex; 
+            align-items: flex-end; 
+            padding: 0 20px 15px 20px; 
+            gap: 8px; 
+            height: 260px; /* 稍微調高以容納可能變高的書 */
+            z-index: 2; 
+            position: relative; 
+            overflow-x: auto; 
+            cursor: grab; 
+            scrollbar-width: none; 
+            -ms-overflow-style: none; 
+            user-select: none;
         }
         .books-row::-webkit-scrollbar { display: none; }
         .books-row:active { cursor: grabbing; }
 
+        /* [關鍵修正] 書籍基礎樣式：允許寬度自適應 */
         .book { 
-            cursor: pointer; transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); 
-            display: flex; align-items: center; justify-content: center; position: relative; 
-            box-shadow: 2px 0 5px rgba(0,0,0,0.3); border-radius: 2px 4px 4px 2px; 
-            border-left: 2px solid rgba(255,255,255,0.1); flex-shrink: 0; 
+            cursor: pointer; 
+            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            position: relative; 
+            box-shadow: 2px 0 5px rgba(0,0,0,0.3); 
+            border-radius: 2px 4px 4px 2px; 
+            flex-shrink: 0; 
+            min-width: 45px; /* 設定最小寬度，避免沒字時太扁 */
+            padding: 0 5px; /* 增加左右內距讓文字不貼邊 */
         }
         .book:hover { transform: translateY(-20px); z-index: 10; }
-        .spine-text { writing-mode: vertical-rl; color: white; font-size: 14px; padding: 10px 0; font-style: normal; pointer-events: none; white-space: nowrap; }
+
+        /* [關鍵修正] 書名文字：允許折行且直式排列 */
+        .spine-text { 
+            writing-mode: vertical-rl; 
+            text-orientation: mixed;
+            color: white; 
+            font-size: 14px; 
+            line-height: 1.2;
+            padding: 15px 0; 
+            font-style: normal; 
+            pointer-events: none; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-height: 100%;
+            overflow: hidden;
+            word-break: break-all; /* 強制長字折行 */
+        }
+
         .shelf-board { height: 20px; background: linear-gradient(to bottom, var(--shelf-color), var(--shelf-depth)); width: 100%; border-radius: 4px; box-shadow: 0 8px 15px rgba(0,0,0,0.3); }
 
         /* --- 彈窗 UI --- */
@@ -67,7 +102,6 @@
         .page.right { background-image: linear-gradient(to left, #ffffff 95%, #e0e0e0 100%); }
         .book-spine-crease { width: 15px; background: linear-gradient(to right, #dcdcdc, #ffffff 50%, #dcdcdc); flex-shrink: 0; z-index: 5; }
 
-        /* 左頁排版：圖片在左，資訊在右 */
         .left-page-header { display: flex; align-items: flex-start; gap: 25px; margin-bottom: 30px; }
         .book-cover-small { width: 130px; height: auto; border-radius: 4px; box-shadow: 0 5px 15px rgba(0,0,0,0.15); flex-shrink: 0; }
         .book-info-text { display: flex; flex-direction: column; }
@@ -76,12 +110,11 @@
         .modal-rating { font-size: 1.1rem; color: #f1c40f; margin-bottom: 12px; }
         .modal-date { font-size: 0.8rem; color: #888; background: #eee; padding: 4px 12px; border-radius: 12px; width: fit-content; }
 
-        /* 金句卡片容器 */
         .highlight-container { display: flex; flex-direction: column; gap: 15px; margin-top: 10px; }
         .highlight-item {
             line-height: 1.8; color: #444; background: rgba(0,0,0,0.04); 
             padding: 15px 20px; border-radius: 10px; font-size: 0.95rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            border-left: 4px solid var(--accent-color);
         }
 
         .section-label { font-size: 0.85rem; color: var(--accent-color); font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #e0e0e0; padding-bottom: 6px; letter-spacing: 1.5px; }
@@ -116,9 +149,7 @@
                     </div>
                     <div id="modal-highlights" class="highlight-container"></div>
                 </div>
-
                 <div class="book-spine-crease"></div>
-
                 <div class="page right">
                     <span class="section-label">【 我 的 心 得 】</span>
                     <div id="modal-thoughts" class="thought-section"></div>
@@ -142,18 +173,25 @@
             const mainContainer = document.getElementById('main-bookshelf');
             mainContainer.innerHTML = '';
             const years = [...new Set(data.map(b => b.year))].sort((a, b) => b - a);
+
             years.forEach(year => {
                 const section = document.createElement('div');
                 section.className = 'year-section';
                 section.innerHTML = `<div class="year-label">${year} 年</div><div class="shelf"><div class="books-row" id="shelf-${year}"></div><div class="shelf-board"></div></div>`;
                 mainContainer.appendChild(section);
+
                 const row = document.getElementById(`shelf-${year}`);
                 data.filter(b => b.year === year).forEach(book => {
                     const bookEl = document.createElement('div');
                     bookEl.className = 'book';
                     bookEl.style.backgroundColor = book.color || '#2c3e50';
                     bookEl.style.height = `${book.height || 200}px`;
-                    bookEl.style.width = `${book.width || 40}px`;
+                    
+                    // [優化] 根據書名長度動態調整書脊寬度
+                    // 如果書名超過 6 個字，稍微加寬書脊
+                    const minWidth = book.title.length > 6 ? 60 : 45;
+                    bookEl.style.width = `${Math.max(book.width || 0, minWidth)}px`;
+                    
                     bookEl.innerHTML = `<div class="spine-text">${book.title}</div>`;
                     bookEl.onclick = () => openNote(book);
                     row.appendChild(bookEl);
@@ -189,15 +227,10 @@
                 rawHighlights = parts[1] ? parts[1].trim() : "";
             }
 
-            // --- 修正後的 Notion 區塊拆分邏輯 ---
             const highlightContainer = document.getElementById('modal-highlights');
             highlightContainer.innerHTML = '';
-            
             if (rawHighlights) {
-                // 使用正則表達式拆分，適應多個換行符號（Notion 區塊轉換常見現象）
-                // 這樣可以確保「一個段落」就是「一個卡片」，而不是一行一個卡片
                 const blocks = rawHighlights.split(/\n\s*\n/).filter(b => b.trim().length > 0);
-                
                 blocks.forEach(text => {
                     const item = document.createElement('div');
                     item.className = 'highlight-item';
