@@ -1,117 +1,217 @@
-<style>
-    /* ... 之前的 root 與 bookshelf 樣式保持不變 ... */
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的互動書櫃 | 精裝 3D 版</title>
+    <style>
+        :root {
+            --shelf-color: #5d4037;
+            --shelf-depth: #3e2723;
+            --wall-color: #f4f1ea;
+            --paper-color: #fafafa;
+            --ink-color: #2c3e50;
+            --accent-color: #8d6e63;
+        }
 
-    /* 彈窗內部的精確排版 */
-    .left-page-content {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
+        body {
+            background-color: var(--wall-color);
+            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
+            margin: 0;
+            padding-bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-    /* 書封縮小並居中/靠左 */
-    .book-cover-small {
-        width: 180px; /* 依照示意圖調整大小 */
-        height: auto;
-        align-self: flex-start;
-        border-radius: 5px;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-        margin-bottom: 10px;
-    }
+        h1 { margin: 60px 0 20px; color: #2c3e50; font-weight: 300; letter-spacing: 2px; }
 
-    .modal-info-block {
-        margin-bottom: 25px;
-    }
+        /* --- 書架顯示區：優化橫向捲動 --- */
+        .bookshelf-container { width: 95%; max-width: 1100px; display: flex; flex-direction: column; }
+        .year-section { margin-top: 50px; }
+        .year-label { font-size: 1.4rem; font-weight: bold; color: var(--accent-color); margin-bottom: 8px; border-left: 5px solid var(--shelf-color); padding-left: 15px; }
+        
+        .shelf { position: relative; margin-bottom: 30px; }
+        
+        .books-row { 
+            display: flex; 
+            align-items: flex-end; 
+            padding: 0 20px; 
+            gap: 6px; 
+            height: 240px; 
+            z-index: 2; 
+            position: relative; 
+            overflow-x: auto; /* 啟動橫向捲動 */
+            cursor: grab;     /* 滑鼠圖示變成抓取狀 */
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+            user-select: none; /* 防止拖拽時選取到文字 */
+        }
+        .books-row:active { cursor: grabbing; }
+        .books-row::-webkit-scrollbar { display: none; }
 
-    .highlight-section {
-        line-height: 1.8;
-        font-size: 0.95rem;
-        color: #444;
-        white-space: pre-wrap;
-        font-style: normal; /* 確保不是斜體 */
-        background: rgba(0,0,0,0.02);
-        padding: 15px;
-        border-radius: 8px;
-    }
+        .book { 
+            cursor: pointer; 
+            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            position: relative; 
+            box-shadow: 2px 0 5px rgba(0,0,0,0.3); 
+            border-radius: 2px 4px 4px 2px; 
+            border-left: 2px solid rgba(255,255,255,0.1); 
+            flex-shrink: 0; 
+        }
+        .book:hover { transform: translateY(-20px); z-index: 10; }
+        
+        .spine-text { writing-mode: vertical-rl; color: white; font-size: 14px; padding: 10px 0; font-style: normal; pointer-events: none; }
+        .shelf-board { height: 20px; background: linear-gradient(to bottom, var(--shelf-color), var(--shelf-depth)); width: 100%; border-radius: 4px; box-shadow: 0 8px 15px rgba(0,0,0,0.3); }
 
-    .thought-section {
-        line-height: 2;
-        font-size: 1.05rem;
-        color: #2c3e50;
-        white-space: pre-wrap;
-        font-style: normal;
-    }
-</style>
+        /* --- 彈窗 UI (3D 翻開) --- */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(5px); perspective: 2000px; }
+        .modal-content { margin: 5vh auto; width: 90%; max-width: 1100px; position: relative; }
+        .open-book { display: flex; background-color: #fff; border-bottom: 8px solid #d0d0d0; border-right: 5px solid #d0d0d0; box-shadow: 10px 20px 70px rgba(0,0,0,0.5); border-radius: 4px; transform: rotateX(5deg); transform-style: preserve-3d; max-height: 85vh; overflow: hidden; }
+        
+        .page { flex: 1; padding: 40px; overflow-y: auto; color: var(--ink-color); display: flex; flex-direction: column; scrollbar-width: none; }
+        .page::-webkit-scrollbar { display: none; }
+        .page.left { border-radius: 4px 0 0 4px; background-image: linear-gradient(to right, #fafafa 95%, #e0e0e0 100%); border-right: 1px solid rgba(0,0,0,0.05); }
+        .page.right { border-radius: 0 4px 4px 0; background-image: linear-gradient(to left, #ffffff 95%, #e0e0e0 100%); }
+        .book-spine-crease { width: 15px; background: linear-gradient(to right, #dcdcdc, #ffffff 50%, #dcdcdc); flex-shrink: 0; z-index: 5; }
 
-<div id="note-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="closeModal()">&times;</span>
-        <div class="open-book">
-            
-            <div class="page left">
-                <div class="left-page-content">
-                    <img id="modal-cover-img" class="book-cover-small" src="" alt="Book Cover">
-                    
-                    <div class="modal-info-block">
-                        <h2 id="modal-title" class="modal-title"></h2>
-                        <div id="modal-author" class="modal-author"></div>
-                        <div id="modal-rating" class="modal-rating"></div>
-                        <div id="modal-date" class="modal-date"></div>
-                    </div>
+        /* 左頁排版 */
+        .book-cover-small { width: 160px; height: auto; border-radius: 5px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); margin-bottom: 20px; align-self: flex-start; }
+        .modal-title { font-size: 1.5rem; margin-bottom: 5px; font-style: normal; }
+        .modal-author { font-size: 1rem; color: #777; margin-bottom: 10px; font-style: normal; }
+        .modal-rating { font-size: 1.2rem; color: #f1c40f; margin-bottom: 15px; }
+        .section-label { font-size: 0.8rem; color: var(--accent-color); font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .highlight-section { line-height: 1.8; color: #444; white-space: pre-wrap; font-style: normal; background: #fdfdfd; padding: 15px; border-radius: 5px; }
+        .thought-section { line-height: 2; font-size: 1.1rem; color: #2c3e50; white-space: pre-wrap; font-style: normal; }
 
+        .close-btn { position: absolute; right: -35px; top: -10px; font-size: 45px; cursor: pointer; color: #fff; }
+
+        @media (max-width: 750px) {
+            .open-book { flex-direction: column; transform: none; max-height: 90vh; }
+            .book-spine-crease { width: 100%; height: 10px; }
+            .close-btn { right: 10px; top: 10px; color: #333; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>My Reading Shelf</h1>
+    <div class="bookshelf-container" id="main-bookshelf"></div>
+
+    <div id="note-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div class="open-book">
+                <div class="page left">
+                    <img id="modal-cover-img" class="book-cover-small" src="" alt="">
+                    <h2 id="modal-title" class="modal-title"></h2>
+                    <div id="modal-author" class="modal-author"></div>
+                    <div id="modal-rating" class="modal-rating"></div>
                     <span class="section-label">【劃線金句】</span>
                     <div id="modal-highlights" class="highlight-section"></div>
                 </div>
-            </div>
-
-            <div class="book-spine-crease"></div>
-
-            <div class="page right">
-                <span class="section-label">【我的心得】</span>
-                <div id="modal-thoughts" class="thought-section"></div>
+                <div class="book-spine-crease"></div>
+                <div class="page right">
+                    <span class="section-label">【我的心得】</span>
+                    <div id="modal-thoughts" class="thought-section"></div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-    /* ... init 與 renderBookshelf 保持不變 ... */
-
-    function openNote(book) {
-        document.getElementById('modal-title').innerText = book.title;
-        document.getElementById('modal-author').innerText = book.author;
-        document.getElementById('modal-rating').innerText = book.rating;
-        document.getElementById('modal-date').innerText = `Finished in ${book.year}`;
-        
-        // 設定縮小書封
-        const coverImg = document.getElementById('modal-cover-img');
-        if (book.cover) {
-            coverImg.src = book.cover;
-            coverImg.style.display = 'block';
-        } else {
-            coverImg.style.display = 'none';
+    <script>
+        async function init() {
+            try {
+                const response = await fetch('books.json');
+                const data = await response.json();
+                
+                // --- 排序調整：日期最新（大到小）在最左邊 ---
+                data.sort((a, b) => b.year - a.year); 
+                
+                renderBookshelf(data);
+                enableDragScroll(); // 啟用拖拉功能
+            } catch (e) { console.error("Fetch error"); }
         }
 
-        // 核心修正：正確拆分並分派到左右頁面
-        let thoughts = "尚無心得紀錄";
-        let highlights = "尚無金句紀錄";
+        function renderBookshelf(data) {
+            const mainContainer = document.getElementById('main-bookshelf');
+            mainContainer.innerHTML = '';
+            const years = [...new Set(data.map(b => b.year))].sort((a, b) => b - a);
 
-        if (book.note) {
-            // 假設 fetch_notion.js 產出的格式是「【我的心得】...【劃線金句】...」
-            const parts = book.note.split('【劃線金句】');
+            years.forEach(year => {
+                const section = document.createElement('div');
+                section.className = 'year-section';
+                section.innerHTML = `<div class="year-label">${year} 年</div><div class="shelf"><div class="books-row" id="shelf-${year}"></div><div class="shelf-board"></div></div>`;
+                mainContainer.appendChild(section);
+
+                const row = document.getElementById(`shelf-${year}`);
+                // 每個年份內的書也按順序排（最新的在前）
+                data.filter(b => b.year === year).forEach(book => {
+                    const bookEl = document.createElement('div');
+                    bookEl.className = 'book';
+                    bookEl.style.backgroundColor = book.color;
+                    bookEl.style.height = `${book.height}px`;
+                    bookEl.style.width = `${book.width}px`;
+                    bookEl.innerHTML = `<div class="spine-text">${book.title}</div>`;
+                    bookEl.onclick = () => openNote(book);
+                    row.appendChild(bookEl);
+                });
+            });
+        }
+
+        // --- 新增：滑鼠拖拉捲動功能 ---
+        function enableDragScroll() {
+            const sliders = document.querySelectorAll('.books-row');
+            sliders.forEach(slider => {
+                let isDown = false;
+                let startX;
+                let scrollLeft;
+
+                slider.addEventListener('mousedown', (e) => {
+                    isDown = true;
+                    slider.classList.add('active');
+                    startX = e.pageX - slider.offsetLeft;
+                    scrollLeft = slider.scrollLeft;
+                });
+                slider.addEventListener('mouseleave', () => { isDown = false; });
+                slider.addEventListener('mouseup', () => { isDown = false; });
+                slider.addEventListener('mousemove', (e) => {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    const x = e.pageX - slider.offsetLeft;
+                    const walk = (x - startX) * 2; // 捲動速度
+                    slider.scrollLeft = scrollLeft - walk;
+                });
+            });
+        }
+
+        function openNote(book) {
+            document.getElementById('modal-title').innerText = book.title;
+            document.getElementById('modal-author').innerText = book.author;
+            document.getElementById('modal-rating').innerText = book.rating;
             
-            // 移除標籤字樣，只保留內容
-            thoughts = parts[0].replace('【我的心得】', '').trim() || "無紀錄";
-            highlights = parts[1] ? parts[1].trim() : "無紀錄";
+            const coverImg = document.getElementById('modal-cover-img');
+            coverImg.src = book.cover || '';
+            coverImg.style.display = book.cover ? 'block' : 'none';
+
+            let thoughts = "尚無心得";
+            let highlights = "尚無金句";
+            if (book.note) {
+                const parts = book.note.split('【劃線金句】');
+                thoughts = parts[0].replace('【我的心得】', '').trim() || "無紀錄";
+                highlights = parts[1] ? parts[1].trim() : "無紀錄";
+            }
+            document.getElementById('modal-thoughts').innerText = thoughts;
+            document.getElementById('modal-highlights').innerText = highlights;
+            document.getElementById('note-modal').style.display = "block";
         }
 
-        // 將金句填入左頁，心得填入右頁
-        document.getElementById('modal-highlights').innerText = highlights;
-        document.getElementById('modal-thoughts').innerText = thoughts;
-
-        document.getElementById('note-modal').style.display = "block";
-    }
-
-    function closeModal() {
-        document.getElementById('note-modal').style.display = "none";
-    }
-</script>
+        function closeModal() { document.getElementById('note-modal').style.display = "none"; }
+        window.onclick = (e) => { if (e.target.className === 'modal') closeModal(); }
+        init();
+    </script>
+</body>
+</html>
