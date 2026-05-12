@@ -51,6 +51,12 @@
             align-items: baseline;
         }
 
+        .book-count {
+            font-size: 0.8rem;
+            color: #666;
+            font-weight: normal;
+        }
+
         .shelf { position: relative; margin-bottom: 60px; }
         
         .books-row {
@@ -244,7 +250,7 @@
         const section = document.createElement('div');
         section.innerHTML = `
             <div class="year-label">
-                ${year} COLLECTION 
+                ${year}  
                 <span class="book-count">(${yearBooks.length} BOOKS)</span>
             </div>
             <div class="shelf">
