@@ -124,12 +124,12 @@
 
         .close-btn { position: absolute; right: 15px; top: 10px; font-size: 35px; color: #333; cursor: pointer; z-index: 2100; line-height: 1; }
 
-        .open-book { display: flex; flex: 1; overflow-y: auto; scrollbar-width: none; }
+        .open-book { display: flex; flex: 1; overflow-y: auto; scrollbar-width: none; background: #fafafa; }
         .open-book::-webkit-scrollbar { display: none; }
         
-        .page { flex: 1; padding: 30px; color: #333; }
+        .page { flex: 1; padding: 30px; color: #333; background: #fafafa; }
         .page.left { background: #fafafa; border-right: 1px solid #eee; }
-        .book-spine-crease { width: 15px; background: linear-gradient(to right, #ddd, #fff 50%, #ddd); flex-shrink: 0; }
+        .book-spine-crease { width: 1px; background: linear-gradient(to right, #ddd, #fff 50%, #ddd); flex-shrink: 0; }
         
         /* 書封固定高度 */
         #m-cover { height: 140px; width: auto; object-fit: contain; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
