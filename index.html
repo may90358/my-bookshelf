@@ -222,13 +222,23 @@
         function renderBookshelf() {
             const container = document.getElementById('main-bookshelf');
             container.innerHTML = '';
+            
+            // 年份由大到小排序 (2026 -> 2025)
             const years = [...new Set(allBooks.map(b => b.year))].sort((a, b) => b - a);
 
             years.forEach(year => {
-                const yearBooks = allBooks.filter(b => b.year === year);
+                // 排序邏輯：同一年份內，日期越新的排在越左邊 (Index 0)
+                const yearBooks = allBooks
+                    .filter(b => b.year === year)
+                    .sort((a, b) => {
+                        const dateA = new Date(a["Date Finished"] || a.date || a.year);
+                        const dateB = new Date(b["Date Finished"] || b.date || b.year);
+                        return dateB - dateA; 
+                    });
+
                 const section = document.createElement('div');
                 section.innerHTML = `
-                    <div class="year-label">${year} COLLECTION</div>
+                    <div class="year-label">${year} COLLECTION <span class="book-count">(${yearBooks.length} BOOKS)</span></div>
                     <div class="shelf">
                         <div class="books-row" id="shelf-${year}"></div>
                         <div class="shelf-board"></div>
@@ -241,8 +251,8 @@
                     const bookEl = document.createElement('div');
                     bookEl.className = 'book';
                     const bg = bookBackgrounds[Math.floor(Math.random() * bookBackgrounds.length)];
-                    const h = 210 + Math.floor(Math.random() * 30);
-                    const w = book.title.length > 8 ? 85 : 58;
+                    const h = 210 + Math.floor(Math.random() * 35);
+                    const w = book.title.length > 8 ? 88 : 62;
                     bookEl.style.backgroundImage = `url('${bg}')`;
                     bookEl.style.height = `${h}px`;
                     bookEl.style.width = `${w}px`;
