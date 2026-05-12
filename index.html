@@ -115,7 +115,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.8);
         }
 
-        /* --- 彈窗樣式修正 --- */
+        /* --- 彈窗樣式 --- */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); }
         .modal-container {
             position: relative;
@@ -133,34 +133,12 @@
 
         .close-btn { position: absolute; right: 15px; top: 10px; font-size: 35px; color: #333; cursor: pointer; z-index: 2100; line-height: 1; }
 
-        .open-book { 
-            display: flex; 
-            flex: 1; 
-            overflow-y: auto; 
-            scrollbar-width: none; 
-            align-items: stretch; /* 強制子元素（page）等高延伸 */
-            background-color: #fff; /* 右側預設背景 */
-        }
+        .open-book { display: flex; flex: 1; overflow-y: auto; scrollbar-width: none; }
         .open-book::-webkit-scrollbar { display: none; }
         
-        .page { 
-            flex: 1; 
-            padding: 40px 30px; 
-            color: #333; 
-            display: flex;
-            flex-direction: column;
-            box-sizing: border-box;
-        }
-        .page.left { 
-            background: #fafafa; 
-            border-right: 1px solid #eee;
-        }
-        
-        .book-spine-crease { 
-            width: 15px; 
-            background: linear-gradient(to right, #ddd, #fff 50%, #ddd); 
-            flex-shrink: 0;
-        }
+        .page { flex: 1; padding: 30px; color: #333; }
+        .page.left { background: #fafafa; border-right: 1px solid #eee; }
+        .book-spine-crease { width: 15px; background: linear-gradient(to right, #ddd, #fff 50%, #ddd); flex-shrink: 0; }
         
         #m-cover { height: 140px; width: auto; object-fit: contain; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
@@ -171,20 +149,20 @@
             padding: 15px 30px;
             background: #f1f1f1;
             border-top: 1px solid #ddd;
-            z-index: 10;
         }
 
         .nav-btn { background: #333; color: var(--gold-bright); border: none; padding: 8px 18px; border-radius: 20px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; }
         .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        .highlight-item { background: #fdfaf5; padding: 12px; margin-bottom: 15px; border-left: 4px solid var(--gold-bright); color: #444; line-height: 1.8; font-size: 0.95rem; }
+        .highlight-item { background: #fdfaf5; padding: 12px; margin-bottom: 12px; border-left: 4px solid var(--gold-bright); color: #444; line-height: 1.6; font-size: 0.9rem; }
 
         @media (max-width: 800px) {
+            h1 { font-size: 1.4rem; margin: 25px 0; }
             .modal-container { height: 92vh; margin: 4vh auto; width: 92%; }
-            .open-book { flex-direction: column; align-items: stretch; }
-            .page { width: 100%; flex: none; padding: 25px; }
+            .open-book { flex-direction: column; }
+            .page { width: 100%; flex: none; padding: 25px; box-sizing: border-box; }
             .page.left { border-right: none; border-bottom: 1px solid #eee; }
-            .book-spine-crease { width: 100%; height: 12px; background: linear-gradient(to bottom, #ddd, #fff 50%, #ddd); }
+            .book-spine-crease { width: 100%; height: 10px; background: linear-gradient(to bottom, #ddd, #fff 50%, #ddd); }
             #m-cover { height: 120px !important; }
         }
     </style>
@@ -200,10 +178,10 @@
             <span class="close-btn" onclick="closeModal()">&times;</span>
             <div class="open-book">
                 <div class="page left">
-                    <div style="display: flex; gap: 15px; margin-bottom: 25px; align-items: flex-start;">
+                    <div style="display: flex; gap: 15px; margin-bottom: 20px; align-items: flex-start;">
                         <img id="m-cover" src="" alt="Cover">
                         <div style="flex: 1;">
-                            <h2 id="m-title" style="margin: 0 0 5px 0; font-family: serif; color: #1a1a1a; line-height: 1.3;"></h2>
+                            <h2 id="m-title" style="margin: 0 0 5px 0; font-family: serif; color: #1a1a1a;"></h2>
                             <div id="m-author" style="color: #666; font-size: 0.9rem;"></div>
                             <div id="m-rating" style="color: #d4af37; margin: 8px 0; font-size: 1rem;"></div>
                             <div id="m-date" style="font-size: 0.75rem; background: #f0f0f0; padding: 4px 10px; border-radius: 4px; display: inline-block; color: #555; border: 1px solid #ddd;"></div>
@@ -213,7 +191,7 @@
                 </div>
                 <div class="book-spine-crease"></div>
                 <div class="page">
-                    <div style="font-size: 0.75rem; color: #b8860b; font-weight: bold; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 5px; letter-spacing: 1px;">REFLECTIONS</div>
+                    <div style="font-size: 0.75rem; color: #b8860b; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; letter-spacing: 1px;">REFLECTIONS</div>
                     <div id="m-thoughts" style="line-height: 1.8; white-space: pre-wrap; font-size: 0.95rem; color: #333;"></div>
                 </div>
             </div>
@@ -330,9 +308,6 @@
 
             document.querySelector('.prev-btn').disabled = (currentIdx === 0);
             document.querySelector('.next-btn').disabled = (currentIdx === currentYearBooks.length - 1);
-            
-            // 重置捲軸到頂部
-            document.querySelector('.open-book').scrollTop = 0;
         }
 
         function changeBook(step) {
@@ -353,8 +328,7 @@
             sliders.forEach(slider => {
                 let isDown = false, startX, scrollLeft;
                 slider.addEventListener('mousedown', (e) => {
-                    isDown = true;
-                    startX = e.pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft;
+                    isDown = true; startX = e.pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft;
                 });
                 slider.addEventListener('mouseleave', () => isDown = false);
                 slider.addEventListener('mouseup', () => isDown = false);
