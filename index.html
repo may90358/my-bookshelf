@@ -39,6 +39,7 @@
             padding: 0 20px 100px;
         }
 
+        /* 年份標題與數量統計樣式 */
         .year-label {
             font-size: 1.3rem;
             color: var(--gold-bright);
@@ -49,6 +50,14 @@
             font-weight: bold;
             display: flex;
             align-items: baseline;
+        }
+
+        .book-count {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-left: 12px;
+            font-weight: normal;
+            letter-spacing: 1px;
         }
 
         .shelf { position: relative; margin-bottom: 60px; }
@@ -131,7 +140,6 @@
         .page.left { background: #fafafa; border-right: 1px solid #eee; }
         .book-spine-crease { width: 15px; background: linear-gradient(to right, #ddd, #fff 50%, #ddd); flex-shrink: 0; }
         
-        /* 書封固定高度 */
         #m-cover { height: 140px; width: auto; object-fit: contain; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
         .modal-nav {
@@ -222,13 +230,17 @@
         function renderBookshelf() {
             const container = document.getElementById('main-bookshelf');
             container.innerHTML = '';
+            // 取得不重複年份並降序排列
             const years = [...new Set(allBooks.map(b => b.year))].sort((a, b) => b - a);
 
             years.forEach(year => {
                 const yearBooks = allBooks.filter(b => b.year === year);
                 const section = document.createElement('div');
                 section.innerHTML = `
-                    <div class="year-label">${year} COLLECTION</div>
+                    <div class="year-label">
+                        ${year} COLLECTION 
+                        <span class="book-count">(共 ${yearBooks.length} 本)</span>
+                    </div>
                     <div class="shelf">
                         <div class="books-row" id="shelf-${year}"></div>
                         <div class="shelf-board"></div>
@@ -267,7 +279,7 @@
             document.getElementById('m-author').innerText = book.author;
             document.getElementById('m-rating').innerText = book.rating;
             
-            // Notion 日期讀取
+            // Notion 日期讀取：優先顯示 Date Finished
             const finishedDate = book["Date Finished"] || book.date || book.year;
             document.getElementById('m-date').innerText = `Finished: ${finishedDate}`;
             
