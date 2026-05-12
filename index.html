@@ -210,58 +210,71 @@
         let currentIdx = -1;
 
         async function init() {
-            try {
-                const response = await fetch('books.json');
-                const data = await response.json();
-                allBooks = data.reverse(); 
-                renderBookshelf();
-                enableDragScroll();
-            } catch (e) { console.error("Load Error"); }
-        }
+    try {
+        const response = await fetch('books.json');
+        const data = await response.json();
+        
+        // 1. 統一將資料存入 allBooks，不再預設 reverse
+        allBooks = data; 
+        
+        renderBookshelf();
+        enableDragScroll();
+    } catch (e) { 
+        console.error("Load Error", e); 
+    }
+}
 
         function renderBookshelf() {
-            const container = document.getElementById('main-bookshelf');
-            container.innerHTML = '';
-            
-            // 年份由大到小排序 (2026 -> 2025)
-            const years = [...new Set(allBooks.map(b => b.year))].sort((a, b) => b - a);
+    const container = document.getElementById('main-bookshelf');
+    container.innerHTML = '';
+    
+    // 2. 取得所有年份並由大到小排序 (2026 -> 2025)
+    const years = [...new Set(allBooks.map(b => b.year))].sort((a, b) => b - a);
 
-            years.forEach(year => {
-                // 排序邏輯：同一年份內，日期越新的排在越左邊 (Index 0)
-                const yearBooks = allBooks
-                    .filter(b => b.year === year)
-                    .sort((a, b) => {
-                        const dateA = new Date(a["Date Finished"] || a.date || a.year);
-                        const dateB = new Date(b["Date Finished"] || b.date || b.year);
-                        return dateB - dateA; 
-                    });
-
-                const section = document.createElement('div');
-                section.innerHTML = `
-                    <div class="year-label">${year} COLLECTION <span class="book-count">(${yearBooks.length} BOOKS)</span></div>
-                    <div class="shelf">
-                        <div class="books-row" id="shelf-${year}"></div>
-                        <div class="shelf-board"></div>
-                    </div>
-                `;
-                container.appendChild(section);
-
-                const row = document.getElementById(`shelf-${year}`);
-                yearBooks.forEach((book, index) => {
-                    const bookEl = document.createElement('div');
-                    bookEl.className = 'book';
-                    const bg = bookBackgrounds[Math.floor(Math.random() * bookBackgrounds.length)];
-                    const h = 210 + Math.floor(Math.random() * 35);
-                    const w = book.title.length > 8 ? 88 : 62;
-                    bookEl.style.backgroundImage = `url('${bg}')`;
-                    bookEl.style.height = `${h}px`;
-                    bookEl.style.width = `${w}px`;
-                    bookEl.innerHTML = `<div class="spine-text">${book.title}</div>`;
-                    bookEl.onclick = () => openModal(yearBooks, index);
-                    row.appendChild(bookEl);
-                });
+    years.forEach(year => {
+        // 3. 過濾該年份書籍，並針對日期進行排序 (由新到舊)
+        const yearBooks = allBooks
+            .filter(b => b.year === year)
+            .sort((a, b) => {
+                const dateA = new Date(a["Date Finished"] || a.date || a.year);
+                const dateB = new Date(b["Date Finished"] || b.date || b.year);
+                return dateB - dateA; // 新的在前
             });
-        }
+
+        const section = document.createElement('div');
+        section.innerHTML = `
+            <div class="year-label">
+                ${year} COLLECTION 
+                <span class="book-count">(${yearBooks.length} BOOKS)</span>
+            </div>
+            <div class="shelf">
+                <div class="books-row" id="shelf-${year}"></div>
+                <div class="shelf-board"></div>
+            </div>
+        `;
+        container.appendChild(section);
+
+        const row = document.getElementById(`shelf-${year}`);
+        yearBooks.forEach((book, index) => {
+            const bookEl = document.createElement('div');
+            bookEl.className = 'book';
+            
+            // 隨機外觀邏輯保持不變
+            const bg = bookBackgrounds[Math.floor(Math.random() * bookBackgrounds.length)];
+            const h = 210 + Math.floor(Math.random() * 30);
+            const w = book.title.length > 8 ? 85 : 58;
+            
+            bookEl.style.backgroundImage = `url('${bg}')`;
+            bookEl.style.height = `${h}px`;
+            bookEl.style.width = `${w}px`;
+            bookEl.innerHTML = `<div class="spine-text">${book.title}</div>`;
+            
+            // 點擊時開啟該排序後的陣列
+            bookEl.onclick = () => openModal(yearBooks, index);
+            row.appendChild(bookEl);
+        });
+    });
+}
 
         function openModal(booksArray, index) {
             currentYearBooks = booksArray;
