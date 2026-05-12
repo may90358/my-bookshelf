@@ -133,26 +133,33 @@
 
         .close-btn { position: absolute; right: 15px; top: 10px; font-size: 35px; color: #333; cursor: pointer; z-index: 2100; line-height: 1; }
 
-        /* 確保內容溢出時，左右頁面與陰影線同步拉長 */
         .open-book { 
             display: flex; 
             flex: 1; 
             overflow-y: auto; 
             scrollbar-width: none; 
-            align-items: stretch; /* 關鍵：強制子元素等高 */
-            background-color: #fff;
+            align-items: stretch; /* 強制子元素（page）等高延伸 */
+            background-color: #fff; /* 右側預設背景 */
         }
         .open-book::-webkit-scrollbar { display: none; }
         
-        .page { flex: 1; padding: 40px 30px; color: #333; min-height: 100%; box-sizing: border-box; }
-        .page.left { background: #fafafa; border-right: 1px solid #eee; }
-        .page.right { background: #fff; }
+        .page { 
+            flex: 1; 
+            padding: 40px 30px; 
+            color: #333; 
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+        .page.left { 
+            background: #fafafa; 
+            border-right: 1px solid #eee;
+        }
         
         .book-spine-crease { 
             width: 15px; 
             background: linear-gradient(to right, #ddd, #fff 50%, #ddd); 
             flex-shrink: 0;
-            /* 自動繼承父容器高度 */
         }
         
         #m-cover { height: 140px; width: auto; object-fit: contain; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
@@ -173,10 +180,9 @@
         .highlight-item { background: #fdfaf5; padding: 12px; margin-bottom: 15px; border-left: 4px solid var(--gold-bright); color: #444; line-height: 1.8; font-size: 0.95rem; }
 
         @media (max-width: 800px) {
-            h1 { font-size: 1.4rem; margin: 25px 0; }
             .modal-container { height: 92vh; margin: 4vh auto; width: 92%; }
-            .open-book { flex-direction: column; align-items: center; }
-            .page { width: 100%; flex: none; padding: 25px; min-height: auto; }
+            .open-book { flex-direction: column; align-items: stretch; }
+            .page { width: 100%; flex: none; padding: 25px; }
             .page.left { border-right: none; border-bottom: 1px solid #eee; }
             .book-spine-crease { width: 100%; height: 12px; background: linear-gradient(to bottom, #ddd, #fff 50%, #ddd); }
             #m-cover { height: 120px !important; }
@@ -206,7 +212,7 @@
                     <div id="m-highlights"></div>
                 </div>
                 <div class="book-spine-crease"></div>
-                <div class="page right">
+                <div class="page">
                     <div style="font-size: 0.75rem; color: #b8860b; font-weight: bold; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 5px; letter-spacing: 1px;">REFLECTIONS</div>
                     <div id="m-thoughts" style="line-height: 1.8; white-space: pre-wrap; font-size: 0.95rem; color: #333;"></div>
                 </div>
@@ -347,7 +353,7 @@
             sliders.forEach(slider => {
                 let isDown = false, startX, scrollLeft;
                 slider.addEventListener('mousedown', (e) => {
-                    isDown = true; slider.classList.add('active');
+                    isDown = true;
                     startX = e.pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft;
                 });
                 slider.addEventListener('mouseleave', () => isDown = false);
