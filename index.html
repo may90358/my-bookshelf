@@ -3,223 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的私人典藏館 | Classical Archive</title>
+    <title>My Personal Bookshelf</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
-            --gold-bright: #ffd700;
-            --gold-text: #eec16d;
+            --bg-color: #121212;
+            --shelf-color: #2a1b15;
+            --gold-accent: #eec16d;
         }
 
         body {
             margin: 0;
             padding: 0;
-            /* 融合背景：使用深色漸層疊加在古典書架背景圖上 */
-            background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.65)), 
-                        url('https://raw.githubusercontent.com/may90358/my-bookshelf/main/images/13817480366721164416.jpeg') no-repeat center center fixed;
-            background-size: cover;
+            background-color: var(--bg-color);
+            /* 使用深色漸層營造氛圍，不使用圖片背景 */
+            background: radial-gradient(circle at top, #1e1e1e 0%, #121212 100%);
             font-family: "Georgia", "PingFang TC", "serif";
-            color: white;
+            color: #eee;
             min-height: 100vh;
-            overflow-x: hidden;
         }
 
         h1 { 
-            text-align: center;
-            margin: 60px 0 20px; 
-            font-weight: bold; 
-            letter-spacing: 10px; 
-            text-shadow: 0 5px 25px rgba(0,0,0,1);
-            color: var(--gold-text);
-            font-size: 2.2rem;
-            font-variant: small-caps;
+            text-align: center; 
+            margin: 50px 0 30px; 
+            font-weight: 300; 
+            letter-spacing: 5px; 
+            color: var(--gold-accent);
+            text-transform: uppercase;
         }
 
-        .collection-center {
-            max-width: 1200px;
+        .container {
+            max-width: 1100px;
             margin: 0 auto;
             padding: 0 20px 100px;
         }
 
+        .year-section { margin-bottom: 60px; }
+
         .year-label {
-            font-size: 1.3rem;
-            color: var(--gold-bright);
-            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
-            padding-bottom: 10px;
-            margin: 60px 0 20px;
-            letter-spacing: 3px;
-            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--gold-accent);
+            margin-bottom: 15px;
+            padding-left: 5px;
+            border-left: 3px solid var(--gold-accent);
+            line-height: 1;
             display: flex;
             align-items: baseline;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            gap: 10px;
         }
 
         .book-count {
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.5);
-            margin-left: 15px;
+            font-size: 0.8rem;
+            color: #666;
             font-weight: normal;
         }
 
-        .shelf { position: relative; margin-bottom: 80px; }
-        
+        /* 書架本體 */
+        .shelf-container { position: relative; }
+
         .books-row {
             display: flex;
             align-items: flex-end;
-            padding: 0 10px 10px;
-            gap: 4px; 
-            height: 280px;
+            gap: 4px;
+            padding: 0 10px 5px;
             overflow-x: auto;
-            scrollbar-width: none;
+            scrollbar-width: none; /* Firefox */
+            height: 270px;
             cursor: grab;
-            /* 讓書籍稍微浮起，不完全貼死背景 */
-            perspective: 1000px;
         }
         .books-row::-webkit-scrollbar { display: none; }
 
         .book {
-            cursor: pointer;
-            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), filter 0.4s ease;
-            position: relative;
             flex-shrink: 0;
-            border-radius: 2px 4px 4px 2px;
+            cursor: pointer;
+            transition: transform 0.3s ease, filter 0.3s ease;
+            position: relative;
             background-size: 100% 100%;
-            box-shadow: 5px 8px 18px rgba(0,0,0,0.7);
+            box-shadow: 3px 5px 15px rgba(0,0,0,0.5);
             display: flex;
             align-items: center;
             justify-content: center;
+            border-radius: 2px 3px 3px 2px;
         }
 
-        .book:hover { 
-            transform: translateY(-25px) rotateY(-5deg) scale(1.08); 
-            z-index: 10; 
-            filter: brightness(1.2) contrast(1.1); 
+        .book:hover {
+            transform: translateY(-15px) scale(1.05);
+            filter: brightness(1.1);
+            z-index: 5;
         }
 
         .spine-text {
-            writing-mode: vertical-rl; 
-            color: #fcf4d9;
+            writing-mode: vertical-rl;
+            color: rgba(255, 255, 255, 0.9);
             font-size: 14px;
             font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
             letter-spacing: 1px;
-            text-shadow: 1px 1px 4px rgba(0,0,0,0.9);
-            padding: 12px 0;
             text-align: center;
             pointer-events: none;
-            max-height: 80%;
+            max-height: 85%;
             overflow: hidden;
         }
 
+        /* 木質層板 */
         .shelf-board {
-            height: 28px;
-            background: linear-gradient(to bottom, #3d2b1f, #1a0f0d 20%, #000);
-            width: 100%;
-            box-shadow: 0 12px 25px rgba(0,0,0,0.9);
+            height: 20px;
+            background: linear-gradient(to bottom, #3d2b1f, #2a1b15);
             border-radius: 2px;
-            border-top: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+            width: 100%;
         }
 
-        /* --- 彈窗樣式 --- */
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); backdrop-filter: blur(12px); }
-        .modal-container {
+        /* 彈窗 Modal */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); }
+        .modal-content {
+            background: #fff;
+            color: #333;
+            width: 90%;
+            max-width: 900px;
+            height: 80vh;
+            margin: 10vh auto;
             position: relative;
-            width: 95%;
-            max-width: 1000px;
-            height: 85vh;
-            margin: 7vh auto;
             display: flex;
             flex-direction: column;
-            background-color: #fff;
-            border-radius: 4px;
+            border-radius: 5px;
             overflow: hidden;
-            box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
 
-        .close-btn { position: absolute; right: 20px; top: 15px; font-size: 35px; color: #333; cursor: pointer; z-index: 2100; opacity: 0.6; transition: 0.3s; }
-        .close-btn:hover { opacity: 1; }
+        .close-btn { position: absolute; right: 20px; top: 15px; font-size: 30px; cursor: pointer; color: #999; z-index: 1100; }
 
-        .open-book { 
-            display: flex; 
-            flex: 1; 
-            overflow-y: auto; 
-            scrollbar-width: none; 
-            align-items: stretch;
-            background-color: #fff;
-        }
-        .open-book::-webkit-scrollbar { display: none; }
+        .book-detail-view { display: flex; flex: 1; overflow-y: auto; }
+        .detail-page { flex: 1; padding: 40px; }
+        .left-page { border-right: 1px solid #eee; background: #fafafa; }
         
-        .page { 
-            flex: 1; 
-            padding: 50px 50px; 
-            color: #333; 
-            display: flex;
-            flex-direction: column;
-        }
-        .page.left { background: #fdfdfd; border-right: 1px solid #eee; }
+        #m-cover { width: 140px; height: auto; border-radius: 4px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .info-header h2 { margin: 0 0 5px 0; color: #111; }
+        .info-header p { margin: 0; color: #777; }
         
-        .book-spine-crease { 
-            width: 20px; 
-            background: linear-gradient(to right, #ddd, #fff 50%, #ddd); 
-            flex-shrink: 0;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
-        }
-        
-        #m-cover { height: 180px; width: auto; object-fit: contain; border-radius: 3px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); margin-bottom: 20px; }
+        .rating { color: #d4af37; margin: 15px 0; font-size: 1.2rem; }
+        .highlight-box { background: #fff; border-left: 4px solid var(--gold-accent); padding: 15px; margin-top: 20px; font-style: italic; color: #555; line-height: 1.6; }
 
-        .modal-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 40px;
-            background: #f5f5f5;
-            border-top: 1px solid #ddd;
-        }
+        .right-page h3 { font-size: 0.9rem; color: #bbb; letter-spacing: 2px; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-top: 0; }
+        .thought-text { line-height: 1.8; color: #444; white-space: pre-wrap; }
 
-        .nav-btn { background: #222; color: var(--gold-bright); border: none; padding: 12px 25px; border-radius: 4px; cursor: pointer; font-family: serif; letter-spacing: 1px; transition: 0.3s; }
-        .nav-btn:hover:not(:disabled) { background: #000; transform: translateY(-2px); }
-        .nav-btn:disabled { opacity: 0.2; cursor: not-allowed; }
+        .modal-footer { padding: 15px 40px; background: #f5f5f5; display: flex; justify-content: space-between; }
+        .nav-btn { padding: 10px 20px; border: none; background: #333; color: white; border-radius: 4px; cursor: pointer; }
+        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        .highlight-item { background: #fdfaf5; padding: 18px; margin-bottom: 15px; border-left: 5px solid var(--gold-bright); color: #444; line-height: 1.8; font-style: italic; }
-
-        @media (max-width: 800px) {
-            .open-book { flex-direction: column; }
-            .page { width: 100%; padding: 30px; }
-            .book-spine-crease { width: 100%; height: 15px; background: linear-gradient(to bottom, #ddd, #fff 50%, #ddd); }
+        @media (max-width: 768px) {
+            .book-detail-view { flex-direction: column; }
+            .detail-page { padding: 25px; }
         }
     </style>
 </head>
 <body>
 
-    <h1>Private Library</h1>
+    <h1>Reading Archive</h1>
 
-    <div class="collection-center" id="main-bookshelf"></div>
+    <div class="container" id="bookshelf-container"></div>
 
-    <!-- 彈窗內容保持不變 -->
     <div id="book-modal" class="modal">
-        <div class="modal-container">
+        <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
-            <div class="open-book">
-                <div class="page left">
-                    <div style="display: flex; gap: 25px; margin-bottom: 30px;">
-                        <img id="m-cover" src="" alt="Cover">
-                        <div style="flex: 1;">
-                            <h2 id="m-title" style="margin: 0 0 10px 0; font-family: serif; color: #111; line-height: 1.2;"></h2>
-                            <div id="m-author" style="color: #666; font-size: 1.1rem;"></div>
-                            <div id="m-rating" style="color: #b8860b; margin: 15px 0; font-size: 1.2rem;"></div>
-                            <div id="m-date" style="font-size: 0.85rem; color: #888; background: #f0f0f0; padding: 4px 12px; border-radius: 20px; display: inline-block;"></div>
-                        </div>
+            <div class="book-detail-view">
+                <div class="detail-page left-page">
+                    <img id="m-cover" src="" alt="">
+                    <div class="info-header">
+                        <h2 id="m-title"></h2>
+                        <p id="m-author"></p>
                     </div>
+                    <div id="m-rating" class="rating"></div>
                     <div id="m-highlights"></div>
                 </div>
-                <div class="book-spine-crease"></div>
-                <div class="page right">
-                    <div style="font-size: 0.8rem; color: #999; font-weight: bold; margin-bottom: 20px; letter-spacing: 2px; border-bottom: 1px solid #eee; padding-bottom: 8px;">REFLECTIONS</div>
-                    <div id="m-thoughts" style="line-height: 2; white-space: pre-wrap; font-size: 1.05rem; color: #333;"></div>
+                <div class="detail-page right-page">
+                    <h3>REFLECTIONS</h3>
+                    <div id="m-thoughts" class="thought-text"></div>
                 </div>
             </div>
-            <div class="modal-nav">
-                <button class="nav-btn prev-btn" onclick="changeBook(-1)"><i class="fas fa-chevron-left"></i> PREVIOUS</button>
-                <button class="nav-btn next-btn" onclick="changeBook(1)">NEXT <i class="fas fa-chevron-right"></i></button>
+            <div class="modal-footer">
+                <button class="nav-btn" id="prevBtn" onclick="changeBook(-1)">PREVIOUS</button>
+                <button class="nav-btn" id="nextBtn" onclick="changeBook(1)">NEXT</button>
             </div>
         </div>
     </div>
@@ -245,30 +208,32 @@
                 allBooks = await response.json();
                 renderBookshelf();
                 enableDragScroll();
-            } catch (e) { console.error("Data Load Error"); }
+            } catch (e) {
+                console.error("Failed to load books.json");
+            }
         }
 
         function renderBookshelf() {
-            const container = document.getElementById('main-bookshelf');
+            const container = document.getElementById('bookshelf-container');
             container.innerHTML = '';
-            
-            // 年份由大到小排序 (2026 -> 2025)
+
             const years = [...new Set(allBooks.map(b => b.year))].sort((a, b) => b - a);
 
             years.forEach(year => {
-                // 排序邏輯：同一年份內，日期越新的排在越左邊 (Index 0)
+                // 排序：最新的日期排在最前面 (Index 0, 左邊)
                 const yearBooks = allBooks
                     .filter(b => b.year === year)
                     .sort((a, b) => {
                         const dateA = new Date(a["Date Finished"] || a.date || a.year);
                         const dateB = new Date(b["Date Finished"] || b.date || b.year);
-                        return dateB - dateA; 
+                        return dateB - dateA;
                     });
 
                 const section = document.createElement('div');
+                section.className = 'year-section';
                 section.innerHTML = `
-                    <div class="year-label">${year} COLLECTION <span class="book-count">(${yearBooks.length} BOOKS)</span></div>
-                    <div class="shelf">
+                    <div class="year-label">${year} <span class="book-count">/ ${yearBooks.length} BOOKS</span></div>
+                    <div class="shelf-container">
                         <div class="books-row" id="shelf-${year}"></div>
                         <div class="shelf-board"></div>
                     </div>
@@ -279,13 +244,17 @@
                 yearBooks.forEach((book, index) => {
                     const bookEl = document.createElement('div');
                     bookEl.className = 'book';
+                    
+                    // 隨機書脊樣式
                     const bg = bookBackgrounds[Math.floor(Math.random() * bookBackgrounds.length)];
-                    const h = 210 + Math.floor(Math.random() * 35);
-                    const w = book.title.length > 8 ? 88 : 62;
+                    const h = 200 + Math.floor(Math.random() * 40);
+                    const w = book.title.length > 8 ? 80 : 55;
+                    
                     bookEl.style.backgroundImage = `url('${bg}')`;
                     bookEl.style.height = `${h}px`;
                     bookEl.style.width = `${w}px`;
                     bookEl.innerHTML = `<div class="spine-text">${book.title}</div>`;
+                    
                     bookEl.onclick = () => openModal(yearBooks, index);
                     row.appendChild(bookEl);
                 });
@@ -305,36 +274,40 @@
             document.getElementById('m-title').innerText = book.title;
             document.getElementById('m-author').innerText = book.author;
             document.getElementById('m-rating').innerText = book.rating;
-            document.getElementById('m-date').innerText = `Finished: ${book["Date Finished"] || book.year}`;
             
-            const img = document.getElementById('m-cover');
-            img.src = book.cover || '';
-            img.style.display = book.cover ? 'block' : 'none';
+            const coverImg = document.getElementById('m-cover');
+            if (book.cover) {
+                coverImg.src = book.cover;
+                coverImg.style.display = 'block';
+            } else {
+                coverImg.style.display = 'none';
+            }
 
+            // 解析心得與金句
             let thoughts = "", highlights = "";
             if (book.note) {
                 const parts = book.note.split('【劃線金句】');
                 thoughts = parts[0].replace('【我的心得】', '').trim();
                 highlights = parts[1] ? parts[1].trim() : "";
             }
-
+            
+            document.getElementById('m-thoughts').innerText = thoughts || "尚未填寫心得。";
+            
             const hContainer = document.getElementById('m-highlights');
             hContainer.innerHTML = '';
             if (highlights) {
                 highlights.split(/\n\s*\n/).forEach(text => {
-                    if(text.trim()){
+                    if (text.trim()) {
                         const div = document.createElement('div');
-                        div.className = 'highlight-item';
+                        div.className = 'highlight-box';
                         div.innerText = text.trim();
                         hContainer.appendChild(div);
                     }
                 });
             }
-            document.getElementById('m-thoughts').innerText = thoughts || "No specific reflections documented.";
 
-            document.querySelector('.prev-btn').disabled = (currentIdx === 0);
-            document.querySelector('.next-btn').disabled = (currentIdx === currentYearBooks.length - 1);
-            document.querySelector('.open-book').scrollTop = 0;
+            document.getElementById('prevBtn').disabled = (currentIdx === 0);
+            document.getElementById('nextBtn').disabled = (currentIdx === currentYearBooks.length - 1);
         }
 
         function changeBook(step) {
@@ -342,8 +315,8 @@
             updateModalContent();
         }
 
-        function closeModal() { 
-            document.getElementById('book-modal').style.display = "none"; 
+        function closeModal() {
+            document.getElementById('book-modal').style.display = "none";
             document.body.style.overflow = 'auto';
         }
 
@@ -352,7 +325,7 @@
             sliders.forEach(slider => {
                 let isDown = false, startX, scrollLeft;
                 slider.addEventListener('mousedown', (e) => {
-                    isDown = true; slider.classList.add('active');
+                    isDown = true;
                     startX = e.pageX - slider.offsetLeft;
                     scrollLeft = slider.scrollLeft;
                 });
@@ -369,6 +342,7 @@
         }
 
         window.onclick = (e) => { if (e.target.className === 'modal') closeModal(); }
+
         init();
     </script>
 </body>
