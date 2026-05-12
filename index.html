@@ -39,7 +39,6 @@
             padding: 0 20px 100px;
         }
 
-        /* 年份標題與數量統計樣式 */
         .year-label {
             font-size: 1.3rem;
             color: var(--gold-bright);
@@ -53,11 +52,12 @@
         }
 
         .book-count {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: rgba(255, 255, 255, 0.6);
             margin-left: 12px;
             font-weight: normal;
             letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
         .shelf { position: relative; margin-bottom: 60px; }
@@ -230,7 +230,6 @@
         function renderBookshelf() {
             const container = document.getElementById('main-bookshelf');
             container.innerHTML = '';
-            // 取得不重複年份並降序排列
             const years = [...new Set(allBooks.map(b => b.year))].sort((a, b) => b - a);
 
             years.forEach(year => {
@@ -239,7 +238,7 @@
                 section.innerHTML = `
                     <div class="year-label">
                         ${year} COLLECTION 
-                        <span class="book-count">(共 ${yearBooks.length} 本)</span>
+                        <span class="book-count">(${yearBooks.length} BOOKS)</span>
                     </div>
                     <div class="shelf">
                         <div class="books-row" id="shelf-${year}"></div>
@@ -279,7 +278,6 @@
             document.getElementById('m-author').innerText = book.author;
             document.getElementById('m-rating').innerText = book.rating;
             
-            // Notion 日期讀取：優先顯示 Date Finished
             const finishedDate = book["Date Finished"] || book.date || book.year;
             document.getElementById('m-date').innerText = `Finished: ${finishedDate}`;
             
