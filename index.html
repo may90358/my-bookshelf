@@ -300,8 +300,8 @@
             document.getElementById('m-rating').innerText = book.rating;
             
             // Notion 日期讀取
-            const finishedDate = book["Date Finished"] || book.date || book.year;
-            document.getElementById('m-date').innerText = `Finished: ${finishedDate}`;
+            const finishedDate = book.date || book["Date Finished"] || book.year;
+            document.getElementById('m-date').innerText =`Finished: ${finishedDate}`;
             
             const img = document.getElementById('m-cover');
             img.src = book.cover || '';
