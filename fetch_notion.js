@@ -61,9 +61,7 @@ async function fetchBooks() {
         cover: coverImageUrl, 
         author: p['Author']?.rich_text[0]?.plain_text || '未知作者',
         rating: p['Rating']?.select?.name || '★★★★★',
-        date: p['Date Finished']?.date?.start
-  ? p['Date Finished'].date.start.slice(0, 10)
-  : '未記錄日期',
+        date: p['Date Finished']?.date?.start? p['Date Finished'].date.start.slice(0, 10): '未記錄日期',
         // 書脊隨機顏色，這部分保持不變
         color: ['#2c3e50', '#c0392b', '#27ae60', '#2980b9', '#8e44ad'][index % 5],
         note: fullNote,
